@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using Scalar;
 using Scalar.AspNetCore;
+using VillaBooking.API.Data.Contexts;
 namespace VillaBooking.API
 {
     public class Program
@@ -12,6 +14,12 @@ namespace VillaBooking.API
             #region Add services to the container.
             
             builder.Services.AddControllers();
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
+
+
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 

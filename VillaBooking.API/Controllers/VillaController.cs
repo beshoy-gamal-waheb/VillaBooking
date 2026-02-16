@@ -52,6 +52,12 @@ namespace VillaBooking.API.Controllers
         {
             try
             {
+                var duplicateVilla = await _dbContext.Villas.AnyAsync(v => v.Name.ToLower() == villaDTO.Name.ToLower());
+                if (duplicateVilla)
+                {
+                    return Conflict($"A Villa with the name '{villaDTO.Name}' already exists");
+                }
+
                 Villa villa = _mapper.Map<VillaUpsertDTO, Villa>(villaDTO);
 
                 await _dbContext.Villas.AddAsync(villa);
@@ -81,6 +87,14 @@ namespace VillaBooking.API.Controllers
                 if (existingvilla is null)
                 {
                     return NotFound($"Villa with ID {id} was not found");
+                }
+
+                var duplicateVilla = await _dbContext.Villas.AnyAsync(v => v.Name.ToLower() == villaDTO.Name.ToLower()
+                            && v.Id != id);
+
+                if (duplicateVilla)
+                {
+                    return Conflict($"A Villa with the name '{villaDTO.Name}' already exists");
                 }
 
                 _mapper.Map(villaDTO, existingvilla);

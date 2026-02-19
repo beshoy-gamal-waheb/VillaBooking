@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VillaBooking.API.Data.Contexts;
+using VillaBooking.API.DTOs.Villa;
 using VillaBooking.API.Models;
-using VillaBooking.API.Models.DTOs;
 using VillaBooking.API.Models.Responses;
 
 namespace VillaBooking.API.Controllers
@@ -15,6 +15,7 @@ namespace VillaBooking.API.Controllers
     {
         [HttpGet]
         [ProducesResponseType(typeof(APIResponse<IEnumerable<VillaDTO>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<object>>), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse<IEnumerable<VillaDTO>>>> GetVillas()
         {
             var villas = await _dbContext.Villas.AsNoTracking().ToListAsync();

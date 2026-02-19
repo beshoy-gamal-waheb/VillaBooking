@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using VillaBooking.API.DTOs.Villa;
 using VillaBooking.API.Models;
-using VillaBooking.API.Models.DTOs;
 
 namespace VillaBooking.API.Profiles
 {

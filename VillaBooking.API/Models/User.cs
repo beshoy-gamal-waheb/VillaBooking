@@ -24,5 +24,8 @@ namespace VillaBooking.API.Models
 
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+
+        public int FailedLoginAttempts { get; set; }
+        public DateTime? LockoutEnd { get; set; }
     }
 }

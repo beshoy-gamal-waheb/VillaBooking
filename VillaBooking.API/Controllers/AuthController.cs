@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.Metadata;
 using VillaBooking.API.DTOs.Auth;
+using VillaBooking.API.Exceptions;
 using VillaBooking.API.Models.Responses;
 using VillaBooking.API.Services.Auth;
 
@@ -74,6 +75,11 @@ namespace VillaBooking.API.Controllers
 
                 var response = APIResponse<LoginResponseDTO>.Ok(loginResponseDTO, "login successfully");
                 return Ok(response);
+            }
+            catch (AccountLockedException ex)
+            {
+                var errorResponse = APIResponse<object>.Locked(ex.Message);
+                return StatusCode(StatusCodes.Status423Locked, errorResponse);
             }
             catch (Exception ex)
             {

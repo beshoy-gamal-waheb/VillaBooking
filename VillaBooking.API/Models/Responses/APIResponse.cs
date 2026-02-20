@@ -44,5 +44,8 @@
 
         public static APIResponse<TData> Error(int statusCode, string message, object? errors = null) =>
             Create(false, statusCode, message, errors:errors);
+
+        public static APIResponse<TData> Locked(string message) =>
+            Create(false, StatusCodes.Status423Locked, message);
     }
 }

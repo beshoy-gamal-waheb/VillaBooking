@@ -7,7 +7,9 @@ using System.Security.Claims;
 using System.Text;
 using VillaBooking.API.Data.Contexts;
 using VillaBooking.API.DTOs.Auth;
+using VillaBooking.API.Exceptions;
 using VillaBooking.API.Models;
+using VillaBooking.API.Models.Responses;
 
 namespace VillaBooking.API.Services.Auth
 {
@@ -51,34 +53,46 @@ namespace VillaBooking.API.Services.Auth
 
         public async Task<LoginResponseDTO?> LoginAsync(LoginRequestDTO loginRequestDTO)
         {
-            try
+
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == loginRequestDTO.Email.ToLower());
+            if (user is null)
             {
-                var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == loginRequestDTO.Email.ToLower());
-                if (user is null)
+                return null;
+            }
+
+            if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTime.UtcNow)
+            {
+                var localTime = user.LockoutEnd.Value.ToLocalTime();
+                throw new AccountLockedException($"Account is locked untill {localTime}"); 
+            }
+
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, loginRequestDTO.Password);
+            if (result == PasswordVerificationResult.Failed)
+            {
+                user.FailedLoginAttempts++;
+
+                if (user.FailedLoginAttempts >= 5)
                 {
-                    return null;
+                    user.LockoutEnd = DateTime.UtcNow.AddMinutes(15);
+                    user.FailedLoginAttempts = 0;
                 }
 
-                var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, loginRequestDTO.Password);
-                if (result == PasswordVerificationResult.Failed)
-                {
-                    return null;
-                }
+                await _dbContext.SaveChangesAsync();
+                return null;
+            }
 
-                //Generate Token
-                var token = GenerateToken(user);
+            user.FailedLoginAttempts = 0;
+            user.LockoutEnd = null;
+            await _dbContext.SaveChangesAsync();
 
-                return new LoginResponseDTO()
+            //Generate Token
+            var token = GenerateToken(user);
+
+            return new LoginResponseDTO()
                 {
                     Token = token,
                     UserDTO = _mapper.Map<UserDTO>(user)
                 };
-
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"An unexpected error occurred during user Login", ex);
-            }
         }
 
         private string GenerateToken(User user)

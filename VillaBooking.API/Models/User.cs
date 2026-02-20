@@ -16,7 +16,7 @@ namespace VillaBooking.API.Models
         public required string Name { get; set; }
 
         [Required]
-        public required string Password { get; set; }
+        public string PasswordHash { get; set; } = null!;
 
         [Required]
         [MaxLength(50)]

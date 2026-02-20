@@ -1,10 +1,17 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Scalar;
 using Scalar.AspNetCore;
+using System.Text;
 using VillaBooking.API.Data.Contexts;
+using VillaBooking.API.Models;
 using VillaBooking.API.Models.Responses;
 using VillaBooking.API.Profiles;
+using VillaBooking.API.Services.Auth;
 namespace VillaBooking.API
 {
     public class Program
@@ -17,6 +24,29 @@ namespace VillaBooking.API
             #region Add services to the container.
             
             builder.Services.AddControllers();
+
+            var key = Encoding.ASCII.GetBytes(builder.Configuration.GetSection("JwtSettings")["Secret"]);
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = true;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
 
             builder.Services.Configure<ApiBehaviorOptions>(options =>
             {
@@ -39,7 +69,6 @@ namespace VillaBooking.API
                 };
             });
 
-
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -50,8 +79,37 @@ namespace VillaBooking.API
                 config.AddProfile<MappingProfile>();
             });
 
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
+            builder.Services.AddOpenApi(options =>
+            {
+                options.AddDocumentTransformer((document, context, cancellationToken) =>
+                {
+                    document.Components ??= new();
+                    document.Components.SecuritySchemes = new Dictionary<string, IOpenApiSecurityScheme>
+                    {
+                        ["Bearer"] = new OpenApiSecurityScheme
+                        {
+                            Type = SecuritySchemeType.Http,
+                            Scheme = "bearer",
+                            BearerFormat = "JWT",
+                            Description = "Enter JWT Bearer token"
+                        }
+                    };
+
+                    document.Security =
+                    [
+                        new OpenApiSecurityRequirement
+                        {
+                            { new OpenApiSecuritySchemeReference("Bearer"), new List<string>() }
+                        }
+                    ];
+
+                    return Task.CompletedTask;
+                });
+            });
 
             #endregion
 
@@ -68,6 +126,7 @@ namespace VillaBooking.API
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

@@ -11,6 +11,8 @@ namespace VillaBooking.API.Models
         [EmailAddress]
         public required string Email { get; set; }
 
+        public string NormalizedEmail { get; set; } = null!;
+
         [Required]
         [MaxLength(100)]
         public required string Name { get; set; }

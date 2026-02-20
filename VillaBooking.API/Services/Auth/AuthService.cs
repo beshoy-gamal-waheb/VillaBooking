@@ -18,7 +18,8 @@ namespace VillaBooking.API.Services.Auth
     {
         public async Task<bool> IsEmailExistsAsync(string email)
         {
-            return await _dbContext.Users.AnyAsync(u => u.Email.ToLower() == email.ToLower());
+            var normalizedEmail = email.ToUpper();
+            return await _dbContext.Users.AnyAsync(u => u.NormalizedEmail == normalizedEmail);
         }
 
         public async Task<UserDTO?> RegisterAsync(RegisterationRequestDTO registerationRequestDTO)
@@ -33,6 +34,7 @@ namespace VillaBooking.API.Services.Auth
                 User user = new()
                 {
                     Email = registerationRequestDTO.Email,
+                    NormalizedEmail = registerationRequestDTO.Email.ToUpper(),
                     Name = registerationRequestDTO.Name,
                     Role = string.IsNullOrWhiteSpace(registerationRequestDTO.Role) ? "Customer" : registerationRequestDTO.Role,
                     CreatedDate = DateTime.Now,
@@ -53,8 +55,8 @@ namespace VillaBooking.API.Services.Auth
 
         public async Task<LoginResponseDTO?> LoginAsync(LoginRequestDTO loginRequestDTO)
         {
-
-            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == loginRequestDTO.Email.ToLower());
+            var normalizedEmail = loginRequestDTO.Email.ToUpper();
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail);
             if (user is null)
             {
                 return null;

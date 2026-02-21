@@ -7,6 +7,7 @@ namespace VillaBooking.API.Data.Contexts
     {
         public DbSet<Villa> Villas { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<VillaAmenities> VillaAmenities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -17,13 +17,24 @@ namespace VillaBooking.API.Controllers
     {
         [HttpGet]
         [ProducesResponseType(typeof(APIResponse<IEnumerable<VillaDTO>>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(APIResponse<IEnumerable<object>>), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse<IEnumerable<VillaDTO>>>> GetVillas()
         {
-            var villas = await _dbContext.Villas.AsNoTracking().ToListAsync();
-            var dtoResponseVillas = _mapper.Map<List<VillaDTO>>(villas);
-            var response = APIResponse<IEnumerable<VillaDTO>>.Ok(dtoResponseVillas, "Villas retrieved successfully");
-            return Ok(response);
+            try
+            {
+                var villas = await _dbContext.Villas.AsNoTracking().ToListAsync();
+                var dtoResponseVillas = _mapper.Map<List<VillaDTO>>(villas);
+                var response = APIResponse<IEnumerable<VillaDTO>>.Ok(dtoResponseVillas, "Villas retrieved successfully");
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = APIResponse<object>.Error(StatusCodes.Status500InternalServerError,
+                    $"An error occurred while retrieving villas",
+                    ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
         }
 
         [HttpGet("{id:int}")]
@@ -40,7 +51,7 @@ namespace VillaBooking.API.Controllers
                     return BadRequest(APIResponse<object>.BadRequest("Villa ID must be greater than 0"));
                 }
 
-                var villa = await _dbContext.Villas.FirstOrDefaultAsync(x => x.Id == id);
+                var villa = await _dbContext.Villas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
                 if (villa is null)
                 {
                     return NotFound(APIResponse<object>.NotFound($"Villa with ID {id} was not found"));

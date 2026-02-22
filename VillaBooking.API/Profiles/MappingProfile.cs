@@ -15,6 +15,7 @@ namespace VillaBooking.API.Profiles
             CreateMap<Villa, VillaDTO>();
             CreateMap<User, UserDTO>();
             CreateMap<VillaAmenityCreateDTO, VillaAmenity>();
+            CreateMap<VillaAmenityUpdateDTO, VillaAmenity>();
             CreateMap<VillaAmenity, VillaAmenityDTO>()
                 .ForMember(dest => dest.VillaName, options => options.MapFrom(src => src.Villa != null ? src.Villa.Name : null));
         }

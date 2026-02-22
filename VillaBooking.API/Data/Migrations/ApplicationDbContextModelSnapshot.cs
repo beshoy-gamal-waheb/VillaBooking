@@ -68,7 +68,7 @@ namespace VillaBooking.API.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("VillaBooking.API.Models.Villa", b =>
@@ -109,7 +109,7 @@ namespace VillaBooking.API.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Villas");
+                    b.ToTable("Villas", (string)null);
 
                     b.HasData(
                         new
@@ -205,7 +205,7 @@ namespace VillaBooking.API.Data.Migrations
 
                     b.HasIndex("VillaId");
 
-                    b.ToTable("VillaAmenities");
+                    b.ToTable("VillaAmenities", (string)null);
                 });
 
             modelBuilder.Entity("VillaBooking.API.Models.VillaAmenities", b =>

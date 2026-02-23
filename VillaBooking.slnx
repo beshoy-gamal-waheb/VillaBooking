@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="VillaBooking.API/VillaBooking.API.csproj" />
+  <Project Path="VillaBooking.Web/VillaBooking.Web.csproj" Id="50fd097b-e773-462f-9b68-6800c9581651" />
 </Solution>

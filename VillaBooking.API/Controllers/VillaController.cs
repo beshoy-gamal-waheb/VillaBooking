@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VillaBooking.API.Data.Contexts;
-using VillaBooking.API.DTOs.Villa;
+using VillaBooking.DTO.Villa;
 using VillaBooking.API.Models;
 using VillaBooking.API.Models.Responses;
 

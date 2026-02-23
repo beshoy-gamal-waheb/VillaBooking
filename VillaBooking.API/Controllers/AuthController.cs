@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.Metadata;
-using VillaBooking.API.DTOs.Auth;
 using VillaBooking.API.Exceptions;
 using VillaBooking.API.Models.Responses;
 using VillaBooking.API.Services.Auth;
+using VillaBooking.DTO.Auth;
 
 namespace VillaBooking.API.Controllers
 {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace VillaBooking.API.DTOs.Auth
+namespace VillaBooking.DTO.Auth
 {
     public class LoginRequestDTO
     {

@@ -6,7 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using VillaBooking.API.Data.Contexts;
-using VillaBooking.API.DTOs.Auth;
+using VillaBooking.DTO.Auth;
 using VillaBooking.API.Exceptions;
 using VillaBooking.API.Models;
 using VillaBooking.API.Models.Responses;

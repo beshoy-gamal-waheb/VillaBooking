@@ -1,5 +1,4 @@
-﻿
-namespace VillaBooking.API.DTOs.VillaAmenity
+﻿namespace VillaBooking.DTO.VillaAmenity
 {
     public class VillaAmenityDTO
     {

@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Options;
-using VillaBooking.API.DTOs.Auth;
-using VillaBooking.API.DTOs.Villa;
-using VillaBooking.API.DTOs.VillaAmenity;
+using VillaBooking.DTO.Auth;
+using VillaBooking.DTO.Villa;
+using VillaBooking.DTO.VillaAmenity;
 using VillaBooking.API.Models;
 
 namespace VillaBooking.API.Profiles

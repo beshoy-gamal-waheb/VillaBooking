@@ -1,4 +1,4 @@
-﻿using VillaBooking.API.DTOs.Auth;
+﻿using VillaBooking.DTO.Auth;
 
 namespace VillaBooking.API.Services.Auth
 {

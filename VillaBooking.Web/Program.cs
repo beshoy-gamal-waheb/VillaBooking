@@ -1,3 +1,4 @@
+using VillaBooking.Web.Profiles;
 using VillaBooking.Web.Services;
 using VillaBooking.Web.Services.IServices;
 
@@ -18,6 +19,11 @@ namespace VillaBooking.Web
                 var villaAPIUrl = builder.Configuration["ServiceUrls:VillaAPI"];
                 options.BaseAddress = new Uri(villaAPIUrl);
                 options.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+
+            builder.Services.AddAutoMapper(config =>
+            {
+                config.AddProfile<MappingProfile>();
             });
 
             builder.Services.AddScoped<IVillaService, VillaService>();

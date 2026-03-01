@@ -1,8 +1,214 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model IEnumerable<VillaDTO>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="carousel-indicators hero-indicators">
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="hero-panel" style="background: linear-gradient(160deg, #0f172a 0%, #1e3a5f 50%, #0ea5e9 100%);">
+                    <div class="hero-overlay"></div>
+                    <div class="container position-relative">
+                        <div class="row min-vh-hero align-items-center">
+                            <div class="col-lg-7">
+                                <div class="hero-badge">
+                                    <i class="bi bi-stars me-1"></i> Premium Collection
+                                </div>
+                                <h1 class="hero-heading">Find Your Perfect <br><span class="hero-heading-accent">Luxury Villa</span></h1>
+                                <p class="hero-text">Discover handpicked villas with world-class amenities, breathtaking views, and unmatched comfort for your dream getaway.</p>
+                                <a href="#villa-listings" class="btn btn-hero">
+                                    Explore Villas <i class="bi bi-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="hero-panel" style="background: linear-gradient(160deg, #1a1a2e 0%, #4a1942 50%, #c850c0 100%);">
+                    <div class="hero-overlay"></div>
+                    <div class="container position-relative">
+                        <div class="row min-vh-hero align-items-center">
+                            <div class="col-lg-7">
+                                <div class="hero-badge">
+                                    <i class="bi bi-gem me-1"></i> World-Class Living
+                                </div>
+                                <h1 class="hero-heading">Experience <br><span class="hero-heading-accent">Premium Amenities</span></h1>
+                                <p class="hero-text">Every villa features curated amenities — private pools, chef kitchens, spa facilities, and concierge services.</p>
+                                <a href="#villa-listings" class="btn btn-hero">
+                                    View Collection <i class="bi bi-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="hero-panel" style="background: linear-gradient(160deg, #0a0f1a 0%, #1b4332 50%, #40916c 100%);">
+                    <div class="hero-overlay"></div>
+                    <div class="container position-relative">
+                        <div class="row min-vh-hero align-items-center">
+                            <div class="col-lg-7">
+                                <div class="hero-badge">
+                                    <i class="bi bi-calendar-check me-1"></i> Book Today
+                                </div>
+                                <h1 class="hero-heading">Create Memories <br><span class="hero-heading-accent">That Last Forever</span></h1>
+                                <p class="hero-text">From serene beachfront retreats to mountain hideaways — your unforgettable escape starts here.</p>
+                                <a href="#villa-listings" class="btn btn-hero">
+                                    Check Availability <i class="bi bi-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev hero-nav" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="hero-nav-icon"><i class="bi bi-chevron-left"></i></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next hero-nav" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="hero-nav-icon"><i class="bi bi-chevron-right"></i></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+</section>
+
+<!-- Listings Section -->
+<section class="listings-section" id="villa-listings">
+    <div class="container">
+
+        <!-- Section Heading -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-7 text-center">
+                <p class="section-eyebrow">Our Properties</p>
+                <h2 class="section-heading">Handpicked Luxury Villas</h2>
+                <p class="section-desc">Explore a curated collection of premium villas — each designed to deliver comfort, elegance, and an unforgettable experience.</p>
+            </div>
+        </div>
+
+        @if (TempData["error"] != null)
+        {
+            <div class="alert alert-danger d-flex align-items-center rounded-3 border-0 shadow-sm mb-5" role="alert">
+                <div class="alert-icon-wrap me-3">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div class="flex-grow-1">@TempData["error"]</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="row justify-content-center">
+                <div class="col-lg-5">
+                    <div class="empty-state-card text-center">
+                        <div class="empty-icon-wrap">
+                            <i class="bi bi-house-slash"></i>
+                        </div>
+                        <h4 class="mt-4 mb-2">No Villas Available</h4>
+                        <p class="text-muted mb-0">There are currently no villas to display. Please check back later!</p>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Villa Grid -->
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                @foreach (var villa in Model)
+                {
+                    <div class="col">
+                        <article class="v-card h-100">
+                            <div class="v-card-media">
+                                @if (!String.IsNullOrEmpty(villa.ImageUrl))
+                                {
+                                    <img src="@villa.ImageUrl" class="v-card-img" alt="@villa.Name" loading="lazy">
+                                }
+                                else
+                                {
+                                    <div class="v-card-img-empty">
+                                        <i class="bi bi-image"></i>
+                                    </div>
+                                }
+                                <div class="v-card-price">
+                                    $@villa.Rate.ToString("N0")<span class="v-card-price-unit">/night</span>
+                                </div>
+                            </div>
+                            <div class="v-card-content">
+                                <h3 class="v-card-name">@villa.Name</h3>
+                                <p class="v-card-detail">@villa.Details</p>
+                                <div class="v-card-meta">
+                                    <span class="v-meta-item">
+                                        <i class="bi bi-people-fill"></i> @villa.Occupancy Guests
+                                    </span>
+                                    <span class="v-meta-item">
+                                        <i class="bi bi-aspect-ratio"></i> @villa.Sqft sqft
+                                    </span>
+                                </div>
+                                <a href="mailto:hello@dotnetmastery.com" class="btn btn-contact-villa">
+                                    <i class="bi bi-envelope me-2"></i>Contact Us
+                                </a>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+
+            <!-- Stats Strip -->
+            <div class="stats-strip">
+                <div class="row g-4 align-items-stretch">
+                    <div class="col-6 col-lg-3">
+                        <div class="s-stat">
+                            <div class="s-stat-icon s-stat-icon--blue">
+                                <i class="bi bi-building"></i>
+                            </div>
+                            <div class="s-stat-body">
+                                <span class="s-stat-num">@Model.Count()</span>
+                                <span class="s-stat-label">Total Villas</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="s-stat">
+                            <div class="s-stat-icon s-stat-icon--green">
+                                <i class="bi bi-cash-stack"></i>
+                            </div>
+                            <div class="s-stat-body">
+                                <span class="s-stat-num">$@Model.Min(v => v.Rate).ToString("N0")</span>
+                                <span class="s-stat-label">Starting From</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="s-stat">
+                            <div class="s-stat-icon s-stat-icon--violet">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                            <div class="s-stat-body">
+                                <span class="s-stat-num">@Model.Max(v => v.Occupancy)</span>
+                                <span class="s-stat-label">Max Guests</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="s-stat">
+                            <div class="s-stat-icon s-stat-icon--amber">
+                                <i class="bi bi-arrows-fullscreen"></i>
+                            </div>
+                            <div class="s-stat-body">
+                                <span class="s-stat-num">@Model.Sum(v => v.Sqft).ToString("N0")</span>
+                                <span class="s-stat-label">Total Sqft</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+

@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using VillaBooking.API.Data.Contexts;
 using VillaBooking.DTO.Villa;
 using VillaBooking.API.Models;
-using VillaBooking.API.Models.Responses;
+using VillaBooking.DTO.Responses;
 
 namespace VillaBooking.API.Controllers
 {
-    [Authorize(Roles = "Admin,Customer")]
+    //[Authorize(Roles = "Admin,Customer")]
     [Route("api/villa")]
     [ApiController]
     public class VillaController(ApplicationDbContext _dbContext,
@@ -71,7 +71,7 @@ namespace VillaBooking.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPost]
         [ProducesResponseType(typeof(APIResponse<VillaDTO>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status409Conflict)]
@@ -106,7 +106,7 @@ namespace VillaBooking.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]
         [ProducesResponseType(typeof(APIResponse<VillaDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status400BadRequest)]
@@ -156,7 +156,7 @@ namespace VillaBooking.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpDelete("{id:int}")]
         [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status400BadRequest)]

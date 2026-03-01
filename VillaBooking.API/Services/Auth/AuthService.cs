@@ -9,7 +9,7 @@ using VillaBooking.API.Data.Contexts;
 using VillaBooking.DTO.Auth;
 using VillaBooking.API.Exceptions;
 using VillaBooking.API.Models;
-using VillaBooking.API.Models.Responses;
+using VillaBooking.DTO.Responses;
 
 namespace VillaBooking.API.Services.Auth
 {

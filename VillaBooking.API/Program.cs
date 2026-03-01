@@ -9,7 +9,7 @@ using Scalar.AspNetCore;
 using System.Text;
 using VillaBooking.API.Data.Contexts;
 using VillaBooking.API.Models;
-using VillaBooking.API.Models.Responses;
+using VillaBooking.DTO.Responses;
 using VillaBooking.API.Profiles;
 using VillaBooking.API.Services.Auth;
 namespace VillaBooking.API
@@ -79,6 +79,8 @@ namespace VillaBooking.API
                 config.AddProfile<MappingProfile>();
             });
 
+            builder.Services.AddCors();
+
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
@@ -123,6 +125,8 @@ namespace VillaBooking.API
                 app.MapOpenApi();
                 app.MapScalarApiReference();
             }
+
+            app.UseCors(option => option.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().WithExposedHeaders("*"));
 
             app.UseHttpsRedirection();
 

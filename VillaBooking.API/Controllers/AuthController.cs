@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.Metadata;
 using VillaBooking.API.Exceptions;
-using VillaBooking.API.Models.Responses;
+using VillaBooking.DTO.Responses;
 using VillaBooking.API.Services.Auth;
 using VillaBooking.DTO.Auth;
 

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VillaBooking.API.Data.Contexts;
 using VillaBooking.API.Models;
-using VillaBooking.API.Models.Responses;
+using VillaBooking.DTO.Responses;
 using VillaBooking.DTO.VillaAmenity;
 
 namespace VillaBooking.API.Controllers

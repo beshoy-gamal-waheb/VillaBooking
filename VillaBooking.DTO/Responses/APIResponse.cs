@@ -1,4 +1,4 @@
-﻿namespace VillaBooking.API.Models.Responses
+﻿namespace VillaBooking.DTO.Responses
 {
     public class APIResponse<TData>
     {
@@ -24,28 +24,28 @@
 
 
         public static APIResponse<TData> Ok(TData data, string message) =>
-            Create(true, StatusCodes.Status200OK, message, data);
+            Create(true, HttpStatusCodes.OK200, message, data);
 
         public static APIResponse<TData> CreatedAt(TData data, string message) =>
-            Create(true, StatusCodes.Status201Created, message, data);
+            Create(true, HttpStatusCodes.Created201, message, data);
 
         public static APIResponse<TData> NoContent(string message = "Operation completed successfully") =>
-            Create(true, StatusCodes.Status204NoContent, message);
+            Create(true, HttpStatusCodes.NoContent204, message);
 
         public static APIResponse<TData> NotFound(string message = "Resource not found") =>
-            Create(false, StatusCodes.Status404NotFound, message);
+            Create(false, HttpStatusCodes.NotFound404, message);
 
         public static APIResponse<TData> BadRequest(string message, object? errors = null) =>
-            Create(false, StatusCodes.Status400BadRequest, message, errors:errors);
+            Create(false, HttpStatusCodes.BadRequest400, message, errors:errors);
 
         public static APIResponse<TData> Conflict(string message) =>
-            Create(false, StatusCodes.Status409Conflict, message);
+            Create(false, HttpStatusCodes.Conflict409, message);
 
 
         public static APIResponse<TData> Error(int statusCode, string message, object? errors = null) =>
             Create(false, statusCode, message, errors:errors);
 
         public static APIResponse<TData> Locked(string message) =>
-            Create(false, StatusCodes.Status423Locked, message);
+            Create(false, HttpStatusCodes.Locked423, message);
     }
 }

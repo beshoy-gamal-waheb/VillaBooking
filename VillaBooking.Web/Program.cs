@@ -1,3 +1,6 @@
+using VillaBooking.Web.Services;
+using VillaBooking.Web.Services.IServices;
+
 namespace VillaBooking.Web
 {
     public class Program
@@ -6,12 +9,26 @@ namespace VillaBooking.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            #region Add services to the container.
+            
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddHttpClient("VillaBookingAPI", options =>
+            {
+                var villaAPIUrl = builder.Configuration["ServiceUrls:VillaAPI"];
+                options.BaseAddress = new Uri(villaAPIUrl);
+                options.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+
+            builder.Services.AddScoped<IVillaService, VillaService>();
+
+            #endregion
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+
+            #region Configure the HTTP request pipeline.
+
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
@@ -29,6 +46,8 @@ namespace VillaBooking.Web
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
+
+            #endregion
 
             app.Run();
         }

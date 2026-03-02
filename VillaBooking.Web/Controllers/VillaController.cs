@@ -13,7 +13,7 @@ namespace VillaBooking.Web.Controllers
             try
             {
                 var response = await _villaService.GetAllAsync<APIResponse<List<VillaDTO>>>("");
-                if(response != null && response.Success && response.Data != null)
+                if (response != null && response.Success && response.Data != null)
                 {
                     villaDTOs = response.Data;
                 }
@@ -25,5 +25,48 @@ namespace VillaBooking.Web.Controllers
 
             return View(villaDTOs);
         }
+
+        #region Create Villa
+        
+        [HttpGet]
+        public IActionResult Create() => View();
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(VillaUpsertDTO upsertDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(upsertDTO);
+            }
+
+            try
+            {
+                var response = await _villaService.CreateAsync<APIResponse<VillaDTO>>(upsertDTO, "");
+                if (response != null && response.Success && response.Data != null)
+                {
+                    TempData["success"] = "Villa created successfully!";
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    var errorMessage =
+                        response?.Errors is IEnumerable<string> errors && errors.Any()
+                        ? string.Join(", ", errors)
+                        : response?.Message ?? "An unknown error occurred while creating the villa.";
+
+                    ModelState.AddModelError(string.Empty, errorMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = $"An error occurred while creating the villa: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(upsertDTO);
+        } 
+
+        #endregion
     }
 }

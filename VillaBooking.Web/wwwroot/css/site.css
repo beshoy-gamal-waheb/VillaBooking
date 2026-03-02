@@ -642,3 +642,182 @@ body {
     }
 }
 
+/* ===================================================================
+   VILLA MANAGEMENT — Scoped Styles
+   =================================================================== */
+.villa-mgmt-header {
+    padding: 7rem 0 2.5rem;
+    background: var(--color-primary);
+    color: #ffffff;
+}
+
+.villa-mgmt-header .section-eyebrow {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.villa-mgmt-header .section-heading {
+    color: #ffffff;
+    font-size: 2.25rem;
+}
+
+.villa-mgmt-header .section-desc {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.villa-mgmt-content {
+    padding: 2.5rem 0 3rem;
+}
+
+/* Alert success icon variant */
+.alert-icon-wrap--success {
+    background: rgba(22, 163, 74, 0.1);
+    color: #16a34a;
+}
+
+/* Table card */
+.villa-table-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.villa-table {
+    font-size: 0.9rem;
+}
+
+.villa-table thead {
+    background: var(--color-surface-alt);
+}
+
+.villa-table thead th {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-light);
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.villa-table tbody td {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+}
+
+.villa-table tbody tr {
+    transition: background 0.15s var(--ease);
+}
+
+.villa-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.villa-table tbody tr:hover {
+    background: var(--color-surface-alt);
+}
+
+/* Table image thumbnail */
+.villa-table-thumb {
+    width: 56px;
+    height: 42px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+}
+
+.villa-table-thumb-empty {
+    width: 56px;
+    height: 42px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, #1e293b, #334155);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 1rem;
+}
+
+/* Table name */
+.villa-table-name {
+    font-weight: 700;
+    color: var(--color-text-heading);
+    font-size: 0.9rem;
+}
+
+/* Table rate badge */
+.villa-table-rate {
+    display: inline-block;
+    background: #dcfce7;
+    color: #16a34a;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+}
+
+/* Action buttons */
+.villa-table-actions {
+    display: inline-flex;
+    gap: 0.375rem;
+}
+
+.villa-action-btn {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    transition: all 0.2s var(--ease);
+    text-decoration: none;
+}
+
+.villa-action-btn--edit {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.villa-action-btn--edit:hover {
+    background: #d97706;
+    color: #ffffff;
+}
+
+.villa-action-btn--delete {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.villa-action-btn--delete:hover {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+/* Responsive — Villa Management */
+@media (max-width: 768px) {
+    .villa-mgmt-header {
+        padding: 6rem 0 2rem;
+        text-align: center;
+    }
+
+    .villa-mgmt-header .row {
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .villa-mgmt-header .col-auto {
+        width: 100%;
+    }
+
+    .villa-mgmt-header .btn-hero {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .villa-mgmt-content {
+        padding: 1.5rem 0 2rem;
+    }
+}
+

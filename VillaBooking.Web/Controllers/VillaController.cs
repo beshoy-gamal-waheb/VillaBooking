@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using VillaBooking.DTO.Responses;
 using VillaBooking.DTO.Villa;
 using VillaBooking.Web.Services.IServices;
 
 namespace VillaBooking.Web.Controllers
 {
-    public class VillaController(IVillaService _villaService) : Controller
+    public class VillaController(IVillaService _villaService, IMapper _mapper) : Controller
     {
         #region Display Villas
         [HttpGet]
@@ -130,6 +131,75 @@ namespace VillaBooking.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        #endregion
+
+        #region Edit Villa
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            if (id <= 0)
+            {
+                TempData["error"] = "Invalid villa ID.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                var response = await _villaService.GetAsync<APIResponse<VillaDTO>>(id, "");
+                if (response != null && response.Success && response.Data != null)
+                {
+                    return View(_mapper.Map<VillaUpsertDTO>(response.Data));
+                }
+
+                TempData["error"] = response?.Message ?? "Villa not found.";
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = $"An error occurred while retrieving villa data: {ex.Message}";
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, VillaUpsertDTO upsertDTO)
+        {
+            if (id <= 0)
+            {
+                TempData["error"] = "Invalid villa ID";
+                return RedirectToAction(nameof(Index));
+            }
+            if (!ModelState.IsValid)
+            {
+                return View(upsertDTO);
+            }
+
+            try
+            {
+                var response = await _villaService.UpdateAsync<APIResponse<VillaDTO>>(id, upsertDTO, "");
+                if (response != null && response.Success && response.Data != null)
+                {
+                    TempData["success"] = "Villa updated successfully!";
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    var errorMessage =
+                        response?.Errors is IEnumerable<string> errors && errors.Any()
+                        ? string.Join(", ", errors)
+                        : response?.Message ?? "An unknown error occurred while updating the villa.";
+                    ModelState.AddModelError(string.Empty, errorMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = $"An error occurred while updating the villa: {ex.Message}";
+                return View(upsertDTO);
+            }
+            return View(upsertDTO);
+        }
         #endregion
     }
 }

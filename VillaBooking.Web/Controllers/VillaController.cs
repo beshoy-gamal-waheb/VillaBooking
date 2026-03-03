@@ -7,6 +7,8 @@ namespace VillaBooking.Web.Controllers
 {
     public class VillaController(IVillaService _villaService) : Controller
     {
+        #region Display Villas
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             List<VillaDTO> villaDTOs = new();
@@ -25,9 +27,10 @@ namespace VillaBooking.Web.Controllers
 
             return View(villaDTOs);
         }
+        #endregion
 
         #region Create Villa
-        
+
         [HttpGet]
         public IActionResult Create() => View();
 
@@ -65,7 +68,67 @@ namespace VillaBooking.Web.Controllers
             }
 
             return View(upsertDTO);
-        } 
+        }
+
+        #endregion
+
+        #region Delete Villa
+        
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (id <= 0)
+            {
+                TempData["error"] = "Invalid villa ID.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                var response = await _villaService.GetAsync<APIResponse<VillaDTO>>(id, "");
+                if (response != null && response.Success && response.Data != null)
+                {
+                    return View(response.Data);
+                }
+
+                TempData["error"] = response?.Message ?? "Villa not found.";
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = $"An error occurred while retrieving villa data: {ex.Message}";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            if (id <= 0)
+            {
+                TempData["error"] = "Invalid villa ID.";
+                return RedirectToAction(nameof(Index));
+            }
+            try
+            {
+                var response = await _villaService.DeleteAsync<APIResponse<object>>(id, "");
+                if (response != null && response.Success)
+                {
+                    TempData["success"] = "Villa deleted successfully!";
+                }
+                else
+                {
+                    TempData["error"] = response?.Message ?? "Failed to delete the villa.";
+                }   
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = $"An error occurred while deleting the villa: {ex.Message}";
+            }
+            return RedirectToAction(nameof(Index));
+        }
 
         #endregion
     }

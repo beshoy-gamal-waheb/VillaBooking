@@ -8,6 +8,6 @@ namespace VillaBooking.Web.Services.IServices
         Task<T?> GetAsync<T>(int id, string token);
         Task<T?> CreateAsync<T>(VillaUpsertDTO dto, string token);
         Task<T?> UpdateAsync<T>(int id, VillaUpsertDTO dto, string token);
-        Task<T?> DeleteAsync<T>(T id, string token);
+        Task<T?> DeleteAsync<T>(int id, string token);
     }
 }

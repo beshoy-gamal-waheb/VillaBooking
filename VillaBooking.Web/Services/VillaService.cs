@@ -50,7 +50,7 @@ namespace VillaBooking.Web.Services
             });
         }
 
-        public Task<T?> DeleteAsync<T>(T id, string token)
+        public Task<T?> DeleteAsync<T>(int id, string token)
         {
             return SendAsync<T>(new ApiRequest()
             {

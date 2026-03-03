@@ -27,6 +27,7 @@ namespace VillaBooking.Web
             });
 
             builder.Services.AddScoped<IVillaService, VillaService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
 
             #endregion
 

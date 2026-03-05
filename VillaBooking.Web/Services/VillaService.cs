@@ -4,59 +4,55 @@ using VillaBooking.Web.Services.IServices;
 
 namespace VillaBooking.Web.Services
 {
-    public class VillaService(IHttpClientFactory _httpClient) : BaseService(_httpClient), IVillaService
+    public class VillaService(IHttpClientFactory _httpClient, IHttpContextAccessor _httpContext)
+        : BaseService(_httpClient, _httpContext), IVillaService
     {
         private const string ApiEndpoint = "/api/villa";
 
-        public Task<T?> GetAllAsync<T>(string token)
+        public Task<T?> GetAllAsync<T>()
         {
             return SendAsync<T>(new ApiRequest()
             {
                 ApiType = SD.ApiType.GET,
-                URL = ApiEndpoint,
-                Token = token
+                URL = ApiEndpoint
             });
         }
 
-        public Task<T?> GetAsync<T>(int id, string token)
+        public Task<T?> GetAsync<T>(int id)
         {
             return SendAsync<T>(new ApiRequest()
             {
                 ApiType = SD.ApiType.GET,
-                URL = $"{ApiEndpoint}/{id}",
-                Token = token
+                URL = $"{ApiEndpoint}/{id}"
             });
         }
 
-        public Task<T?> CreateAsync<T>(VillaUpsertDTO dto, string token)
+        public Task<T?> CreateAsync<T>(VillaUpsertDTO dto)
         {
             return SendAsync<T>(new ApiRequest()
             {
                 ApiType = SD.ApiType.POST,
                 URL = ApiEndpoint,
-                Data = dto,
-                Token = token
+                Data = dto
             });
         }
 
-        public Task<T?> UpdateAsync<T>(int id, VillaUpsertDTO dto, string token)
+        public Task<T?> UpdateAsync<T>(int id, VillaUpsertDTO dto)
         {
             return SendAsync<T>(new ApiRequest()
             {
                 ApiType = SD.ApiType.PUT,
                 URL = $"{ApiEndpoint}/{id}",
-                Data = dto,
-                Token = token
+                Data = dto
             });
         }
 
-        public Task<T?> DeleteAsync<T>(int id, string token)
+        public Task<T?> DeleteAsync<T>(int id)
         {
             return SendAsync<T>(new ApiRequest()
             {
                 ApiType = SD.ApiType.DELETE,
-                URL = $"{ApiEndpoint}/{id}",
-                Token = token
+                URL = $"{ApiEndpoint}/{id}"
             });
         }
 

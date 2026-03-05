@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using VillaBooking.Web.Profiles;
 using VillaBooking.Web.Services;
 using VillaBooking.Web.Services.IServices;
@@ -14,12 +15,31 @@ namespace VillaBooking.Web
             
             builder.Services.AddControllersWithViews();
 
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(option =>
+            {
+                option.IdleTimeout = TimeSpan.FromMinutes(60);
+                option.Cookie.HttpOnly = true;
+                option.Cookie.IsEssential = true;
+            });
+
             builder.Services.AddHttpClient("VillaBookingAPI", options =>
             {
                 var villaAPIUrl = builder.Configuration["ServiceUrls:VillaAPI"];
                 options.BaseAddress = new Uri(villaAPIUrl);
                 options.DefaultRequestHeaders.Add("Accept", "application/json");
             });
+
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.Cookie.HttpOnly = true;
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+                    options.SlidingExpiration = true;
+                    options.LoginPath = "/Auth/Login";
+                    options.AccessDeniedPath = "/Auth/AccessDenied";
+                });
 
             builder.Services.AddAutoMapper(config =>
             {
@@ -46,6 +66,8 @@ namespace VillaBooking.Web
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            app.UseSession();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();

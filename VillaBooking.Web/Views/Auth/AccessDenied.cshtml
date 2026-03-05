@@ -1,0 +1,39 @@
+﻿@{
+    ViewData["Title"] = "Access Denied";
+    Layout = "_Layout";
+}
+
+<div class="container" style="padding-top: 7rem; padding-bottom: 4rem;">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="auth-card p-5 text-center">
+
+                <!-- Icon -->
+                <div class="mb-4">
+                    <div class="auth-icon-wrap mx-auto"
+                         style="width:80px; height:80px; font-size:2rem;
+                                background:#fee2e2; color:#dc2626;">
+                        <i class="bi bi-shield-exclamation"></i>
+                    </div>
+                </div>
+
+                <!-- Heading -->
+                <h2 class="section-heading" style="font-size:1.75rem;">
+                    Access Denied
+                </h2>
+
+                <!-- Description -->
+                <p class="section-desc mb-4">
+                    Sorry, you don't have permission to access this resource.
+                    Please contact your administrator if you believe this is an error.
+                </p>
+
+                <!-- Action Button -->
+                <a asp-controller="Home" asp-action="Index" class="btn-hero text-decoration-none">
+                    <i class="bi bi-house me-2"></i>Go to Home
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>

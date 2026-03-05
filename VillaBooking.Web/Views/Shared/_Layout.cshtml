@@ -17,26 +17,150 @@
     <header class="site-header">
         <nav class="navbar navbar-expand-lg fixed-top site-navbar">
             <div class="container">
-                <a class="navbar-brand site-logo" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-building me-2"></i>Villa<span class="logo-accent">Booking</span>
+
+                <a class="navbar-brand site-logo" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-building me-2"></i>
+                    Villa<span class="logo-accent">Booking</span>
                 </a>
-                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+
+                <button class="navbar-toggler border-0"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarNav">
                     <i class="bi bi-list fs-4"></i>
                 </button>
-                <div class="navbar-collapse collapse justify-content-end">
+
+                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+
                     <ul class="navbar-nav align-items-lg-center gap-lg-1">
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <!-- MOBILE USER EMAIL -->
+                            <li class="nav-item d-lg-none mb-2">
+                                <div class="text-white fw-semibold px-2">
+                                    <i class="bi bi-person-circle me-1"></i>
+                                    @User.Identity.Name
+                                </div>
+                                <hr class="text-light opacity-25">
+                            </li>
+                        }
+
+                        <!-- Home -->
                         <li class="nav-item">
-                            <a class="nav-link nav-link-custom" asp-area="" asp-controller="Home" asp-action="Index">
-                                Home
+                            <a class="nav-link nav-link-custom"
+                               asp-controller="Home"
+                               asp-action="Index">
+                                <i class="bi bi-house me-1"></i>Home
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link nav-link-custom" asp-controller="Villa" asp-action="Index">
-                                <i class="bi bi-house-gear me-1"></i>Villa Management
-                            </a>
-                        </li>
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-custom"
+                                   asp-controller="Villa"
+                                   asp-action="Index">
+                                    <i class="bi bi-house-gear me-1"></i>
+                                    Villa Management
+                                </a>
+                            </li>
+                        }
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <!-- MOBILE LOGOUT -->
+                            <li class="nav-item d-lg-none">
+                                <form asp-controller="Auth" asp-action="Logout" method="post">
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit"
+                                            class="nav-link nav-link-custom logout-link border-0 bg-transparent w-100 text-start">
+
+                                        <i class="bi bi-box-arrow-right me-1"></i>
+                                        Logout
+
+                                    </button>
+
+                                </form>
+                            </li>
+
+                            <!-- DESKTOP USER DROPDOWN -->
+                            <li class="nav-item dropdown d-none d-lg-block">
+
+                                <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 nav-user-toggle"
+                                   href="#"
+                                   id="userDropdown"
+                                   data-bs-toggle="dropdown">
+
+                                    <span class="nav-avatar-badge">
+                                        <i class="bi bi-person-fill"></i>
+                                    </span>
+
+                                    <span class="fw-medium">
+                                        @User.Identity.Name
+                                    </span>
+
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end nav-dropdown mt-2">
+
+                                    <li class="px-3 py-2">
+                                        <small class="text-muted d-block">
+                                            Signed in as
+                                        </small>
+
+                                        <span class="fw-semibold">
+                                            @User.Identity.Name
+                                        </span>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider my-1"></li>
+
+                                    <li>
+                                        <form asp-controller="Auth" asp-action="Logout" method="post">
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="dropdown-item text-danger">
+
+                                                <i class="bi bi-box-arrow-right me-2"></i>
+                                                Logout
+
+                                            </button>
+
+                                        </form>
+                                    </li>
+
+                                </ul>
+
+                            </li>
+                        }
+                        else
+                        {
+                            <!-- LOGIN -->
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-custom"
+                                   asp-controller="Auth"
+                                   asp-action="Login">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i>
+                                    Login
+                                </a>
+                            </li>
+
+                            <!-- REGISTER -->
+                            <li class="nav-item ms-lg-1">
+                                <a class="btn btn-hero btn-sm px-3"
+                                   asp-controller="Auth"
+                                   asp-action="Register">
+                                    <i class="bi bi-person-plus me-1"></i>
+                                    Register
+                                </a>
+                            </li>
+                        }
+
                     </ul>
+
                 </div>
             </div>
         </nav>

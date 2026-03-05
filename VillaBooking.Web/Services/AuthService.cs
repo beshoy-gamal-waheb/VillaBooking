@@ -4,7 +4,8 @@ using VillaBooking.Web.Services.IServices;
 
 namespace VillaBooking.Web.Services
 {
-    public class AuthService(IHttpClientFactory _httpClient) : BaseService(_httpClient), IAuthService
+    public class AuthService(IHttpClientFactory _httpClient, IHttpContextAccessor _httpContext)
+        : BaseService(_httpClient, _httpContext), IAuthService
     {
         private const string APIEndpoint = "/api/auth";
 

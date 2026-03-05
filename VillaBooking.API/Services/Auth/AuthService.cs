@@ -28,7 +28,7 @@ namespace VillaBooking.API.Services.Auth
             {
                 if (await IsEmailExistsAsync(registerationRequestDTO.Email))
                 {
-                    throw new InvalidOperationException($"User with email {registerationRequestDTO.Email} already exists");
+                    throw new InvalidOperationException($"User with email '{registerationRequestDTO.Email}' already exists");
                 }
 
                 User user = new()
@@ -75,7 +75,7 @@ namespace VillaBooking.API.Services.Auth
 
                 if (user.FailedLoginAttempts >= 5)
                 {
-                    user.LockoutEnd = DateTime.UtcNow.AddMinutes(15);
+                    user.LockoutEnd = DateTime.UtcNow.AddMinutes(3);
                     user.FailedLoginAttempts = 0;
                 }
 

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VillaBooking.DTO.Responses;
 using VillaBooking.DTO.Villa;
@@ -6,16 +7,19 @@ using VillaBooking.Web.Services.IServices;
 
 namespace VillaBooking.Web.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class VillaController(IVillaService _villaService, IMapper _mapper) : Controller
     {
         #region Display Villas
+
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             List<VillaDTO> villaDTOs = new();
             try
             {
-                var response = await _villaService.GetAllAsync<APIResponse<List<VillaDTO>>>("");
+                var response = await _villaService.GetAllAsync<APIResponse<List<VillaDTO>>>();
                 if (response != null && response.Success && response.Data != null)
                 {
                     villaDTOs = response.Data;
@@ -46,7 +50,7 @@ namespace VillaBooking.Web.Controllers
 
             try
             {
-                var response = await _villaService.CreateAsync<APIResponse<VillaDTO>>(upsertDTO, "");
+                var response = await _villaService.CreateAsync<APIResponse<VillaDTO>>(upsertDTO);
                 if (response != null && response.Success && response.Data != null)
                 {
                     TempData["success"] = "Villa created successfully!";
@@ -86,7 +90,7 @@ namespace VillaBooking.Web.Controllers
 
             try
             {
-                var response = await _villaService.GetAsync<APIResponse<VillaDTO>>(id, "");
+                var response = await _villaService.GetAsync<APIResponse<VillaDTO>>(id);
                 if (response != null && response.Success && response.Data != null)
                 {
                     return View(response.Data);
@@ -114,7 +118,7 @@ namespace VillaBooking.Web.Controllers
             }
             try
             {
-                var response = await _villaService.DeleteAsync<APIResponse<object>>(id, "");
+                var response = await _villaService.DeleteAsync<APIResponse<object>>(id);
                 if (response != null && response.Success)
                 {
                     TempData["success"] = "Villa deleted successfully!";
@@ -146,7 +150,7 @@ namespace VillaBooking.Web.Controllers
 
             try
             {
-                var response = await _villaService.GetAsync<APIResponse<VillaDTO>>(id, "");
+                var response = await _villaService.GetAsync<APIResponse<VillaDTO>>(id);
                 if (response != null && response.Success && response.Data != null)
                 {
                     return View(_mapper.Map<VillaUpsertDTO>(response.Data));
@@ -178,7 +182,7 @@ namespace VillaBooking.Web.Controllers
 
             try
             {
-                var response = await _villaService.UpdateAsync<APIResponse<VillaDTO>>(id, upsertDTO, "");
+                var response = await _villaService.UpdateAsync<APIResponse<VillaDTO>>(id, upsertDTO);
                 if (response != null && response.Success && response.Data != null)
                 {
                     TempData["success"] = "Villa updated successfully!";

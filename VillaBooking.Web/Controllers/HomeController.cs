@@ -8,14 +8,14 @@ using VillaBooking.Web.Services.IServices;
 
 namespace VillaBooking.Web.Controllers
 {
-    public class HomeController(IVillaService _villaService, IMapper _mapper) : Controller
+    public class HomeController(IVillaService _villaService) : Controller
     {
         public async Task<IActionResult> Index()
         {
             List<VillaDTO> villaDTOs = new();
             try
             {
-                var response = await _villaService.GetAllAsync<APIResponse<List<VillaDTO>>>("");
+                var response = await _villaService.GetAllAsync<APIResponse<List<VillaDTO>>>();
 
                 if (response != null && response.Success && response.Data != null)
                 {

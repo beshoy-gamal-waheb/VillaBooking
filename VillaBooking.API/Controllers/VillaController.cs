@@ -9,12 +9,13 @@ using VillaBooking.DTO.Responses;
 
 namespace VillaBooking.API.Controllers
 {
-    //[Authorize(Roles = "Admin,Customer")]
+    [Authorize(Roles = "Admin")]
     [Route("api/villa")]
     [ApiController]
     public class VillaController(ApplicationDbContext _dbContext,
                                  IMapper _mapper) : ControllerBase
     {
+        [AllowAnonymous]
         [HttpGet]
         [ProducesResponseType(typeof(APIResponse<IEnumerable<VillaDTO>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status500InternalServerError)]
@@ -37,6 +38,7 @@ namespace VillaBooking.API.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin,Customer")]
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(APIResponse<VillaDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status400BadRequest)]
@@ -71,7 +73,7 @@ namespace VillaBooking.API.Controllers
             }
         }
 
-        //[Authorize(Roles = "Admin")]
+
         [HttpPost]
         [ProducesResponseType(typeof(APIResponse<VillaDTO>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status409Conflict)]
@@ -106,7 +108,7 @@ namespace VillaBooking.API.Controllers
             }
         }
 
-        //[Authorize(Roles = "Admin")]
+
         [HttpPut("{id:int}")]
         [ProducesResponseType(typeof(APIResponse<VillaDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status400BadRequest)]
@@ -156,7 +158,7 @@ namespace VillaBooking.API.Controllers
             }
         }
 
-        //[Authorize(Roles = "Admin")]
+
         [HttpDelete("{id:int}")]
         [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status400BadRequest)]

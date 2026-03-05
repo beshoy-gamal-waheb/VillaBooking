@@ -34,6 +34,36 @@ namespace VillaBooking.Web.Controllers
         }
         #endregion
 
+        #region Details Villa
+
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            if (id <= 0)
+            {
+                TempData["error"] = "Invalid villa ID.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                var response = await _villaService.GetAsync<APIResponse<VillaDTO>>(id);
+                if (response != null && response.Success && response.Data != null)
+                {
+                    return View(response.Data);
+                }
+                TempData["error"] = response?.Message ?? "Villa not found.";
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = $"An error occurred while retriving the villa: {ex.Message}";
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        #endregion
+
         #region Create Villa
 
         [HttpGet]

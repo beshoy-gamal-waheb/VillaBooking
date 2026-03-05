@@ -123,38 +123,65 @@
                 @foreach (var villa in Model)
                 {
                     <div class="col">
-                        <article class="v-card h-100">
-                            <div class="v-card-media">
-                                @if (!String.IsNullOrEmpty(villa.ImageUrl))
-                                {
-                                    <img src="@villa.ImageUrl" class="v-card-img" alt="@villa.Name" loading="lazy">
-                                }
-                                else
-                                {
-                                    <div class="v-card-img-empty">
-                                        <i class="bi bi-image"></i>
+
+                        <a asp-controller="Villa"
+                           asp-action="Details"
+                           asp-route-id="@villa.Id"
+                           class="text-decoration-none">
+
+                            <article class="v-card h-100">
+                                <div class="v-card-media">
+                                    @if (!String.IsNullOrEmpty(villa.ImageUrl))
+                                    {
+                                        <img src="@villa.ImageUrl" class="v-card-img" alt="@villa.Name" loading="lazy">
+                                    }
+                                    else
+                                    {
+                                        <div class="v-card-img-empty">
+                                            <i class="bi bi-image"></i>
+                                        </div>
+                                    }
+                                    <div class="v-card-price">
+                                        $@villa.Rate.ToString("N0")<span class="v-card-price-unit">/night</span>
                                     </div>
-                                }
-                                <div class="v-card-price">
-                                    $@villa.Rate.ToString("N0")<span class="v-card-price-unit">/night</span>
                                 </div>
-                            </div>
-                            <div class="v-card-content">
-                                <h3 class="v-card-name">@villa.Name</h3>
-                                <p class="v-card-detail">@villa.Details</p>
-                                <div class="v-card-meta">
-                                    <span class="v-meta-item">
-                                        <i class="bi bi-people-fill"></i> @villa.Occupancy Guests
-                                    </span>
-                                    <span class="v-meta-item">
-                                        <i class="bi bi-aspect-ratio"></i> @villa.Sqft sqft
-                                    </span>
+                                <div class="v-card-content">
+                                    <h3 class="v-card-name">@villa.Name</h3>
+                                    <p class="v-card-detail">@villa.Details</p>
+                                    <div class="v-card-meta">
+                                        <span class="v-meta-item">
+                                            <i class="bi bi-people-fill"></i> @villa.Occupancy Guests
+                                        </span>
+                                        <span class="v-meta-item">
+                                            <i class="bi bi-aspect-ratio"></i> @villa.Sqft sqft
+                                        </span>
+                                    </div>
+                                    @if (User.Identity?.IsAuthenticated == true)
+                                    {
+                                        <a href="mailto:beshoygamall12@gmail.com"
+                                           class="btn btn-contact-villa"
+                                           onclick="event.stopPropagation();">
+
+                                            <i class="bi bi-envelope me-2"></i>Contact Us
+
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="Auth"
+                                           asp-action="Login"
+                                           class="btn btn-contact-villa"
+                                           onclick="event.stopPropagation();">
+
+                                            <i class="bi bi-envelope me-2"></i>Contact Us
+
+                                        </a>
+                                    }
                                 </div>
-                                <a href="mailto:hello@dotnetmastery.com" class="btn btn-contact-villa">
-                                    <i class="bi bi-envelope me-2"></i>Contact Us
-                                </a>
-                            </div>
-                        </article>
+                            </article>
+
+                        </a>
+
                     </div>
                 }
             </div>

@@ -22,7 +22,7 @@ namespace VillaBooking.API
 
 
             #region Add services to the container.
-            
+
             builder.Services.AddControllers();
 
             var key = Encoding.ASCII.GetBytes(builder.Configuration.GetSection("JwtSettings")["Secret"]);
@@ -70,9 +70,15 @@ namespace VillaBooking.API
             });
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-            });
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnection"),
+                    sqlOptions =>
+                    {
+                        sqlOptions.EnableRetryOnFailure(
+                            maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(10),
+                            errorNumbersToAdd: null);
+                    }));
 
             builder.Services.AddAutoMapper(config =>
             {
@@ -116,10 +122,10 @@ namespace VillaBooking.API
             #endregion
 
             var app = builder.Build();
-            await ApplyMigrations(app);   
+            await ApplyMigrations(app);
 
             #region Configure the HTTP request pipeline.
-            
+
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
@@ -134,7 +140,7 @@ namespace VillaBooking.API
             app.UseAuthorization();
 
 
-            app.MapControllers(); 
+            app.MapControllers();
 
             #endregion
 
@@ -147,6 +153,6 @@ namespace VillaBooking.API
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
             await context.Database.MigrateAsync();
-        } 
+        }
     }
 }

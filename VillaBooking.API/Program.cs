@@ -12,6 +12,8 @@ using VillaBooking.API.Models;
 using VillaBooking.DTO.Responses;
 using VillaBooking.API.Profiles;
 using VillaBooking.API.Services.Auth;
+using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
 namespace VillaBooking.API
 {
     public class Program
@@ -90,34 +92,71 @@ namespace VillaBooking.API
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi(options =>
+            builder.Services.AddApiVersioning(options =>
             {
-                options.AddDocumentTransformer((document, context, cancellationToken) =>
-                {
-                    document.Components ??= new();
-                    document.Components.SecuritySchemes = new Dictionary<string, IOpenApiSecurityScheme>
-                    {
-                        ["Bearer"] = new OpenApiSecurityScheme
-                        {
-                            Type = SecuritySchemeType.Http,
-                            Scheme = "bearer",
-                            BearerFormat = "JWT",
-                            Description = "Enter JWT Bearer token"
-                        }
-                    };
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.ReportApiVersions = true;
+            }).AddApiExplorer(options =>
+            {
+                options.GroupNameFormat = "'v'VVV";
+                options.SubstituteApiVersionInUrl = true;
+            });
 
-                    document.Security =
-                    [
-                        new OpenApiSecurityRequirement
+
+            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+            var builderProvider = builder.Services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
+
+            foreach (var description in builderProvider.ApiVersionDescriptions)
+            {
+                var versionName = description.GroupName;
+                var versionNumber = description.ApiVersion.ToString();
+                var displayName = $"Demo API -- {versionNumber}";
+
+
+                builder.Services.AddOpenApi(versionName, options =>
+                {
+                    options.AddDocumentTransformer((document, context, cancellationToken) =>
+                    {
+                        document.Info = new OpenApiInfo
+                        {
+                            Title = "Demo Villa Booking",
+                            Version = versionName,
+                            Description = displayName,
+                            Contact = new OpenApiContact
+                            {
+                                Name = "Beshoy Gamal",
+                                Email = "beshoygamall12@gmail.com" 
+                            }
+                        };
+
+                        document.Components ??= new();
+                        document.Components.SecuritySchemes = new Dictionary<string, IOpenApiSecurityScheme>
+                        {
+                            ["Bearer"] = new OpenApiSecurityScheme
+                            {
+                                Type = SecuritySchemeType.Http,
+                                Scheme = "bearer",
+                                BearerFormat = "JWT",
+                                Description = "Enter JWT Bearer token"
+                            }
+                        };
+
+                        document.Security =
+                        [
+                            new OpenApiSecurityRequirement
                         {
                             { new OpenApiSecuritySchemeReference("Bearer"), new List<string>() }
                         }
-                    ];
+                        ];
 
-                    return Task.CompletedTask;
+                        return Task.CompletedTask;
+                    });
                 });
-            });
+
+            }
+     
 
             #endregion
 
@@ -128,8 +167,27 @@ namespace VillaBooking.API
 
             if (app.Environment.IsDevelopment())
             {
-                app.MapOpenApi();
-                app.MapScalarApiReference();
+                app.MapOpenApi("/openapi/{documentName}.json");
+
+                var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+
+                app.MapScalarApiReference(options =>
+                {
+                    options.Title = "Demo - Villa Booking API";
+
+                    var sortedVersion = provider.ApiVersionDescriptions.OrderBy(v => v.ApiVersion).ToList();
+
+                    foreach (var description in sortedVersion)
+                    {
+                        var versionName = description.GroupName;
+                        var versionNumber = description.ApiVersion.ToString();
+                        var versionDisplay = $"Demo API -- {versionNumber}";
+
+                        var isDefault = description.ApiVersion.Equals(new ApiVersion(2, 0));
+
+                        options.AddDocument(versionName, versionDisplay, $"/openapi/{versionName}.json", isDefault);
+                    }
+                });
             }
 
             app.UseCors(option => option.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().WithExposedHeaders("*"));

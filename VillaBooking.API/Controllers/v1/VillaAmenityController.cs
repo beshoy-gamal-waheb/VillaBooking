@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Asp.Versioning;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,9 +8,10 @@ using VillaBooking.API.Models;
 using VillaBooking.DTO.Responses;
 using VillaBooking.DTO.VillaAmenity;
 
-namespace VillaBooking.API.Controllers
+namespace VillaBooking.API.Controllers.v1
 {
-    [Route("api/villa-amenities")]
+    [Route("api/v{version:ApiVersion}/villa-amenities")]
+    [ApiVersion("1.0")]
     [ApiController]
     public class VillaAmenityController(ApplicationDbContext _dbContext, IMapper _mapper) : ControllerBase
     {

@@ -6,11 +6,13 @@ using VillaBooking.API.Data.Contexts;
 using VillaBooking.DTO.Villa;
 using VillaBooking.API.Models;
 using VillaBooking.DTO.Responses;
+using Asp.Versioning;
 
-namespace VillaBooking.API.Controllers
+namespace VillaBooking.API.Controllers.v1
 {
-    [Authorize(Roles = "Admin")]
-    [Route("api/villa")]
+    //[Authorize(Roles = "Admin")]
+    [Route("api/v{version:ApiVersion}/villa")]
+    [ApiVersion("1.0")]
     [ApiController]
     public class VillaController(ApplicationDbContext _dbContext,
                                  IMapper _mapper) : ControllerBase

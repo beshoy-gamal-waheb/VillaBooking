@@ -6,11 +6,13 @@ using VillaBooking.API.Exceptions;
 using VillaBooking.DTO.Responses;
 using VillaBooking.API.Services.Auth;
 using VillaBooking.DTO.Auth;
+using Asp.Versioning;
 
 namespace VillaBooking.API.Controllers
 {
     [AllowAnonymous]
     [Route("api/auth")]
+    [ApiVersionNeutral]
     [ApiController]
     public class AuthController(IAuthService _authService) : ControllerBase
     {

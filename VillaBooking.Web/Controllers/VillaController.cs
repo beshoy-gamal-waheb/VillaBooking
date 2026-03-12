@@ -43,7 +43,7 @@ namespace VillaBooking.Web.Controllers
             if (id <= 0)
             {
                 TempData["error"] = "Invalid villa ID.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), "Home");
             }
 
             try
@@ -59,7 +59,7 @@ namespace VillaBooking.Web.Controllers
             {
                 TempData["error"] = $"An error occurred while retriving the villa: {ex.Message}";
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), "Home");
         }
 
         #endregion

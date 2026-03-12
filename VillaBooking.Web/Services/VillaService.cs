@@ -7,7 +7,7 @@ namespace VillaBooking.Web.Services
     public class VillaService(IHttpClientFactory _httpClient, IHttpContextAccessor _httpContext)
         : BaseService(_httpClient, _httpContext), IVillaService
     {
-        private const string ApiEndpoint = "/api/villa";
+        private const string ApiEndpoint = $"/api/{SD.CurrentApiVersion}/villa";
 
         public Task<T?> GetAllAsync<T>()
         {

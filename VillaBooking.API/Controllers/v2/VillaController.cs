@@ -17,10 +17,105 @@ namespace VillaBooking.API.Controllers.v2
     public class VillaController(ApplicationDbContext _dbContext,
                                  IMapper _mapper) : ControllerBase
     {
+        //[AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<String>> GetVillas()
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<VillaDTO>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse<IEnumerable<VillaDTO>>>> GetVillas(
+            [FromQuery] string? name,
+            [FromQuery] string? details,
+            [FromQuery] int? minOccupancy,
+            [FromQuery] int? maxOccupancy,
+            [FromQuery] double? minRate,
+            [FromQuery] double? maxRate,
+            [FromQuery] int? minSqft,
+            [FromQuery] int? maxSqft)
         {
-            return "This is V2";
+            try
+            {
+                var villasQuery = _dbContext.Villas.AsNoTracking().AsQueryable();
+
+                #region Filtering
+
+                if (minRate.HasValue && maxRate.HasValue && minRate > maxRate)
+                {
+                    return BadRequest(APIResponse<object>.Error(
+                        StatusCodes.Status400BadRequest,
+                        "minRate cannot be greater than maxRate"));
+                }
+
+                if (minOccupancy.HasValue && maxOccupancy.HasValue && minOccupancy > maxOccupancy)
+                {
+                    return BadRequest(APIResponse<object>.Error(
+                        StatusCodes.Status400BadRequest,
+                        "minOccupancy cannot be greater than maxOccupancy"));
+                }
+
+                if (minSqft.HasValue && maxSqft.HasValue && minSqft > maxSqft)
+                {
+                    return BadRequest(APIResponse<object>.Error(
+                        StatusCodes.Status400BadRequest,
+                        "minSqft cannot be greater than maxSqft"));
+                }
+
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    var normalizedName = name.Trim().ToLower();
+                    villasQuery = villasQuery.Where(v => v.Name.ToLower().Contains(normalizedName));
+                }
+
+                if (!string.IsNullOrWhiteSpace(details))
+                {
+                    var normalizedDetails = details.Trim().ToLower();
+                    villasQuery = villasQuery.Where(v => (v.Details ?? string.Empty).ToLower().Contains(normalizedDetails));
+                }
+
+                if (minOccupancy.HasValue)
+                {
+                    villasQuery = villasQuery.Where(v => v.Occupancy >= minOccupancy.Value);
+                }
+
+                if (maxOccupancy.HasValue)
+                {
+                    villasQuery = villasQuery.Where(v => v.Occupancy <= maxOccupancy.Value);
+                }
+
+                if (minRate.HasValue)
+                {
+                    villasQuery = villasQuery.Where(v => v.Rate >= minRate.Value);
+                }
+
+                if (maxRate.HasValue)
+                {
+                    villasQuery = villasQuery.Where(v => v.Rate <= maxRate.Value);
+                }
+
+                if (minSqft.HasValue)
+                {
+                    villasQuery = villasQuery.Where(v => v.Sqft >= minSqft.Value);
+                }
+
+                if (maxSqft.HasValue)
+                {
+                    villasQuery = villasQuery.Where(v => v.Sqft <= maxSqft.Value);
+                } 
+
+                #endregion
+
+                var villas = await villasQuery.ToListAsync();
+                var dtoResponseVillas = _mapper.Map<List<VillaDTO>>(villas);
+
+                var response = APIResponse<IEnumerable<VillaDTO>>.Ok(dtoResponseVillas, "Villas retrieved successfully");
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = APIResponse<object>.Error(StatusCodes.Status500InternalServerError,
+                    "An error occurred while retrieving villas",
+                    ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
         }
 
         [HttpGet("{id:int}")]

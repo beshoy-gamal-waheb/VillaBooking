@@ -1,12 +1,13 @@
-﻿using AutoMapper;
+﻿using Asp.Versioning;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 using VillaBooking.API.Data.Contexts;
-using VillaBooking.DTO.Villa;
 using VillaBooking.API.Models;
 using VillaBooking.DTO.Responses;
-using Asp.Versioning;
+using VillaBooking.DTO.Villa;
 
 namespace VillaBooking.API.Controllers.v2
 {
@@ -30,10 +31,15 @@ namespace VillaBooking.API.Controllers.v2
             [FromQuery] double? maxRate,
             [FromQuery] int? minSqft,
             [FromQuery] int? maxSqft,
-            [FromQuery] string? sortBy, [FromQuery] string? sortOrder = "asc")
+            [FromQuery] string? sortBy, [FromQuery] string? sortOrder = "asc",
+            [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
+                if(page < 1) page = 1;
+                if(pageSize < 1) pageSize = 10;
+                if(pageSize > 100) pageSize = 100;
+
                 var villasQuery = _dbContext.Villas.AsNoTracking().AsQueryable();
 
                 #region Filtering
@@ -124,10 +130,42 @@ namespace VillaBooking.API.Controllers.v2
 
                 #endregion
 
-                var villas = await villasQuery.ToListAsync();
-                var dtoResponseVillas = _mapper.Map<List<VillaDTO>>(villas);
+                #region Pagination
 
-                var response = APIResponse<IEnumerable<VillaDTO>>.Ok(dtoResponseVillas, "Villas retrieved successfully");
+                var totalCount = await villasQuery.CountAsync();
+                var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+                if (page > totalPages && totalPages > 0)
+                {
+                    page = totalPages;
+                }
+
+                var skip = (page - 1) * pageSize;
+
+                villasQuery = villasQuery.Skip(skip).Take(pageSize);
+
+                #endregion
+
+                var villas = await villasQuery.ToListAsync();
+                var dtoResponseVillas = _mapper.Map<IEnumerable<VillaDTO>>(villas);
+
+                var stringBuilder = new StringBuilder();
+                stringBuilder.Append($"Successfully retrieved {dtoResponseVillas.Count()} villa/s");
+                stringBuilder.Append($" (Page {page} of {totalPages}, {totalCount} total records)");
+
+
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    stringBuilder.Append($" sorted by: {sortBy} {(sortOrder?.ToLower() == "desc" ? "descending" : "ascending")}");
+                }
+
+                Response.Headers.Append("X-Pagination-CurrentPage", page.ToString());
+                Response.Headers.Append("X-Pagination-PageSize", pageSize.ToString());
+                Response.Headers.Append("X-Pagination-TotalCount", totalCount.ToString());
+                Response.Headers.Append("X-Pagination-TotalPages", totalPages.ToString());
+
+
+                var response = APIResponse<IEnumerable<VillaDTO>>.Ok(dtoResponseVillas, stringBuilder.ToString());
                 return Ok(response);
             }
             catch (Exception ex)

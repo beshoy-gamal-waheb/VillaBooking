@@ -29,7 +29,8 @@ namespace VillaBooking.API.Controllers.v2
             [FromQuery] double? minRate,
             [FromQuery] double? maxRate,
             [FromQuery] int? minSqft,
-            [FromQuery] int? maxSqft)
+            [FromQuery] int? maxSqft,
+            [FromQuery] string? sortBy, [FromQuery] string? sortOrder = "asc")
         {
             try
             {
@@ -98,7 +99,28 @@ namespace VillaBooking.API.Controllers.v2
                 if (maxSqft.HasValue)
                 {
                     villasQuery = villasQuery.Where(v => v.Sqft <= maxSqft.Value);
-                } 
+                }
+
+                #endregion
+
+                #region Sorting
+
+                if (!string.IsNullOrWhiteSpace(sortBy))
+                {
+                    var isDescending = sortOrder?.Trim().ToLower() == "desc";
+                    villasQuery = sortBy.Trim().ToLower() switch
+                    {
+                        "name" => isDescending ? villasQuery.OrderByDescending(v => v.Name) : villasQuery.OrderBy(v => v.Name),
+                        "rate" => isDescending ? villasQuery.OrderByDescending(v => v.Rate) : villasQuery.OrderBy(v => v.Rate),
+                        "occupancy" => isDescending ? villasQuery.OrderByDescending(v => v.Occupancy) : villasQuery.OrderBy(v => v.Occupancy),
+                        "sqft" => isDescending ? villasQuery.OrderByDescending(v => v.Sqft) : villasQuery.OrderBy(v => v.Sqft),
+                        _=> villasQuery.OrderBy(v => v.Id)
+                    };
+                }
+                else
+                {
+                    villasQuery = villasQuery.OrderBy(v => v.Id);
+                }
 
                 #endregion
 

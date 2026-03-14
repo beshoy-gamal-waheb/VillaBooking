@@ -11,14 +11,14 @@ using VillaBooking.DTO.Villa;
 
 namespace VillaBooking.API.Controllers.v2
 {
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("api/v{version:ApiVersion}/villa")]
     [ApiVersion("2.0")]
     [ApiController]
     public class VillaController(ApplicationDbContext _dbContext,
                                  IMapper _mapper) : ControllerBase
     {
-        //[AllowAnonymous]
+        [AllowAnonymous]
         [HttpGet]
         [ProducesResponseType(typeof(APIResponse<IEnumerable<VillaDTO>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status500InternalServerError)]

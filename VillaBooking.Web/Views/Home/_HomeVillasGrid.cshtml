@@ -1,0 +1,205 @@
+@model VillaBooking.Web.Models.VillaListViewModel
+
+@if (Model.Villas == null || !Model.Villas.Any())
+{
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="empty-state-card text-center">
+                <div class="empty-icon-wrap">
+                    <i class="bi bi-house-slash"></i>
+                </div>
+                <h4 class="mt-4 mb-2">No Villas Found</h4>
+                <p class="text-muted mb-3">No villas match your current filters. Try adjusting your search criteria.</p>
+                <a href="#" class="btn btn-hero btn-sm ajax-clear-filters">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Clear Filters
+                </a>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Villa Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+        @foreach (var villa in Model.Villas)
+        {
+            <div class="col">
+
+                <a asp-controller="Villa"
+                   asp-action="Details"
+                   asp-route-id="@villa.Id"
+                   class="text-decoration-none">
+
+                    <article class="v-card h-100">
+                        <div class="v-card-media">
+                            @if (!String.IsNullOrEmpty(villa.ImageUrl))
+                            {
+                                <img src="@villa.ImageUrl" class="v-card-img" alt="@villa.Name" loading="lazy">
+                            }
+                            else
+                            {
+                                <div class="v-card-img-empty">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                            }
+                            <div class="v-card-price">
+                                $@villa.Rate.ToString("N0")<span class="v-card-price-unit">/night</span>
+                            </div>
+                        </div>
+                        <div class="v-card-content">
+                            <h3 class="v-card-name">@villa.Name</h3>
+                            <p class="v-card-detail">@villa.Details</p>
+                            <div class="v-card-meta">
+                                <span class="v-meta-item">
+                                    <i class="bi bi-people-fill"></i> @villa.Occupancy Guests
+                                </span>
+                                <span class="v-meta-item">
+                                    <i class="bi bi-aspect-ratio"></i> @villa.Sqft sqft
+                                </span>
+                            </div>
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <a href="mailto:beshoygamall12@gmail.com"
+                                   class="btn btn-contact-villa"
+                                   onclick="event.stopPropagation();">
+
+                                    <i class="bi bi-envelope me-2"></i>Contact Us
+
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Auth"
+                                   asp-action="Login"
+                                   class="btn btn-contact-villa"
+                                   onclick="event.stopPropagation();">
+
+                                    <i class="bi bi-envelope me-2"></i>Contact Us
+
+                                </a>
+                            }
+                        </div>
+                    </article>
+
+                </a>
+
+            </div>
+        }
+    </div>
+
+    <!-- Pagination -->
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label="Villa pagination" class="qc-pagination-wrap">
+            <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
+                <span class="qc-page-info">
+                    Showing page <strong>@Model.CurrentPage</strong> of <strong>@Model.TotalPages</strong>
+                    <span class="text-muted">(@Model.TotalCount total)</span>
+                </span>
+                <ul class="pagination qc-pagination mb-0">
+                    <!-- Previous -->
+                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link ajax-page-link" href="#" data-page="@(Model.CurrentPage - 1)">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    @{
+                        int startPage = Math.Max(1, Model.CurrentPage - 2);
+                        int endPage = Math.Min(Model.TotalPages, startPage + 4);
+                        if (endPage - startPage < 4)
+                        {
+                            startPage = Math.Max(1, endPage - 4);
+                        }
+                    }
+
+                    @if (startPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link ajax-page-link" href="#" data-page="1">1</a>
+                        </li>
+                        @if (startPage > 2)
+                        {
+                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                        }
+                    }
+
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link ajax-page-link" href="#" data-page="@i">@i</a>
+                        </li>
+                    }
+
+                    @if (endPage < Model.TotalPages)
+                    {
+                        @if (endPage < Model.TotalPages - 1)
+                        {
+                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                        }
+                        <li class="page-item">
+                            <a class="page-link ajax-page-link" href="#" data-page="@Model.TotalPages">@Model.TotalPages</a>
+                        </li>
+                    }
+
+                    <!-- Next -->
+                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                        <a class="page-link ajax-page-link" href="#" data-page="@(Model.CurrentPage + 1)">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    }
+
+    <!-- Stats Strip -->
+    <div class="stats-strip">
+        <div class="row g-4 align-items-stretch">
+            <div class="col-6 col-lg-3">
+                <div class="s-stat">
+                    <div class="s-stat-icon s-stat-icon--blue">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div class="s-stat-body">
+                        <span class="s-stat-num">@Model.TotalCount</span>
+                        <span class="s-stat-label">Total Villas</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="s-stat">
+                    <div class="s-stat-icon s-stat-icon--green">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <div class="s-stat-body">
+                        <span class="s-stat-num">$@(Model.Villas.Any() ? Model.Villas.Min(v => v.Rate).ToString("N0") : "0")</span>
+                        <span class="s-stat-label">Starting From</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="s-stat">
+                    <div class="s-stat-icon s-stat-icon--violet">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div class="s-stat-body">
+                        <span class="s-stat-num">@(Model.Villas.Any() ? Model.Villas.Max(v => v.Occupancy) : 0)</span>
+                        <span class="s-stat-label">Max Guests</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="s-stat">
+                    <div class="s-stat-icon s-stat-icon--amber">
+                        <i class="bi bi-arrows-fullscreen"></i>
+                    </div>
+                    <div class="s-stat-body">
+                        <span class="s-stat-num">@(Model.Villas.Any() ? Model.Villas.Sum(v => v.Sqft).ToString("N0") : "0")</span>
+                        <span class="s-stat-label">Total Sqft</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

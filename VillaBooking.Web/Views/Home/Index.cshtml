@@ -1,4 +1,4 @@
-﻿@model IEnumerable<VillaDTO>
+@model VillaListViewModel
 
 <!-- Hero Section -->
 <section class="hero-section">
@@ -102,140 +102,198 @@
             </div>
         }
 
-        @if (Model == null || !Model.Any())
-        {
-            <div class="row justify-content-center">
-                <div class="col-lg-5">
-                    <div class="empty-state-card text-center">
-                        <div class="empty-icon-wrap">
-                            <i class="bi bi-house-slash"></i>
+        <!-- Filter & Sort Panel -->
+        <div class="qc-panel mb-4">
+            <button class="btn qc-toggle-btn w-100 d-flex align-items-center justify-content-between"
+                    type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false">
+                <span><i class="bi bi-funnel me-2"></i>Filter & Sort Villas</span>
+                <i class="bi bi-chevron-down qc-chevron"></i>
+            </button>
+            <div class="collapse" id="filterPanel">
+                <form id="filterForm" method="get" class="qc-form">
+                    <div class="row g-3">
+                        <!-- Name -->
+                        <div class="col-md-6 col-lg-4">
+                            <label class="qc-label" for="qcName">Name</label>
+                            <input type="text" class="form-control qc-input" id="qcName"
+                                   name="Name" value="@Model.Query.Name" placeholder="Search by name..." />
                         </div>
-                        <h4 class="mt-4 mb-2">No Villas Available</h4>
-                        <p class="text-muted mb-0">There are currently no villas to display. Please check back later!</p>
+                        <!-- Details -->
+                        <div class="col-md-6 col-lg-4">
+                            <label class="qc-label" for="qcDetails">Details</label>
+                            <input type="text" class="form-control qc-input" id="qcDetails"
+                                   name="Details" value="@Model.Query.Details" placeholder="Search in details..." />
+                        </div>
+                        <!-- Sort By -->
+                        <div class="col-md-6 col-lg-4">
+                            <label class="qc-label" for="qcSortBy">Sort By</label>
+                            <div class="d-flex gap-2">
+                                <select class="form-select qc-input" id="qcSortBy" name="SortBy">
+                                    <option value="">Default</option>
+                                    <option value="name" selected="@(Model.Query.SortBy == "name")">Name</option>
+                                    <option value="rate" selected="@(Model.Query.SortBy == "rate")">Rate</option>
+                                    <option value="occupancy" selected="@(Model.Query.SortBy == "occupancy")">Occupancy</option>
+                                    <option value="sqft" selected="@(Model.Query.SortBy == "sqft")">Sqft</option>
+                                </select>
+                                <select class="form-select qc-input" id="qcSortOrder" name="SortOrder" style="max-width: 130px;">
+                                    <option value="asc" selected="@(Model.Query.SortOrder == "asc")">Asc</option>
+                                    <option value="desc" selected="@(Model.Query.SortOrder == "desc")">Desc</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Min/Max Occupancy -->
+                        <div class="col-6 col-md-3">
+                            <label class="qc-label" for="qcMinOcc">Min Occupancy</label>
+                            <input type="number" class="form-control qc-input" id="qcMinOcc"
+                                   name="MinOccupancy" value="@Model.Query.MinOccupancy" min="0" placeholder="Min" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="qc-label" for="qcMaxOcc">Max Occupancy</label>
+                            <input type="number" class="form-control qc-input" id="qcMaxOcc"
+                                   name="MaxOccupancy" value="@Model.Query.MaxOccupancy" min="0" placeholder="Max" />
+                        </div>
+                        <!-- Min/Max Rate -->
+                        <div class="col-6 col-md-3">
+                            <label class="qc-label" for="qcMinRate">Min Rate ($)</label>
+                            <input type="number" class="form-control qc-input" id="qcMinRate"
+                                   name="MinRate" value="@Model.Query.MinRate" min="0" step="0.01" placeholder="Min" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="qc-label" for="qcMaxRate">Max Rate ($)</label>
+                            <input type="number" class="form-control qc-input" id="qcMaxRate"
+                                   name="MaxRate" value="@Model.Query.MaxRate" min="0" step="0.01" placeholder="Max" />
+                        </div>
+                        <!-- Min/Max Sqft -->
+                        <div class="col-6 col-md-3">
+                            <label class="qc-label" for="qcMinSqft">Min Sqft</label>
+                            <input type="number" class="form-control qc-input" id="qcMinSqft"
+                                   name="MinSqft" value="@Model.Query.MinSqft" min="0" placeholder="Min" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="qc-label" for="qcMaxSqft">Max Sqft</label>
+                            <input type="number" class="form-control qc-input" id="qcMaxSqft"
+                                   name="MaxSqft" value="@Model.Query.MaxSqft" min="0" placeholder="Max" />
+                        </div>
+                        <!-- Page Size -->
+                        <div class="col-6 col-md-3">
+                            <label class="qc-label" for="qcPageSize">Per Page</label>
+                            <select class="form-select qc-input" id="qcPageSize" name="PageSize">
+                                <option value="6" selected="@(Model.Query.PageSize == 6)">6</option>
+                                <option value="9" selected="@(Model.Query.PageSize == 9)">9</option>
+                                <option value="12" selected="@(Model.Query.PageSize == 12)">12</option>
+                                <option value="24" selected="@(Model.Query.PageSize == 24)">24</option>
+                            </select>
+                        </div>
+                        <!-- Actions -->
+                        <div class="col-md-3 d-flex align-items-end gap-2">
+                            <button type="submit" class="btn btn-hero flex-grow-1">
+                                <i class="bi bi-search me-1"></i> Search
+                            </button>
+                            <a href="#" id="clearFiltersBtn" class="btn qc-btn-reset">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
+                        </div>
                     </div>
-                </div>
+                    <input type="hidden" id="hiddenPage" name="Page" value="1" />
+                </form>
             </div>
-        }
-        else
-        {
-            <!-- Villa Grid -->
-            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
-                @foreach (var villa in Model)
-                {
-                    <div class="col">
+        </div>
 
-                        <a asp-controller="Villa"
-                           asp-action="Details"
-                           asp-route-id="@villa.Id"
-                           class="text-decoration-none">
+        <div id="villasContainer">
+            @await Html.PartialAsync("_HomeVillasGrid", Model)
+        </div>
 
-                            <article class="v-card h-100">
-                                <div class="v-card-media">
-                                    @if (!String.IsNullOrEmpty(villa.ImageUrl))
-                                    {
-                                        <img src="@villa.ImageUrl" class="v-card-img" alt="@villa.Name" loading="lazy">
-                                    }
-                                    else
-                                    {
-                                        <div class="v-card-img-empty">
-                                            <i class="bi bi-image"></i>
-                                        </div>
-                                    }
-                                    <div class="v-card-price">
-                                        $@villa.Rate.ToString("N0")<span class="v-card-price-unit">/night</span>
-                                    </div>
-                                </div>
-                                <div class="v-card-content">
-                                    <h3 class="v-card-name">@villa.Name</h3>
-                                    <p class="v-card-detail">@villa.Details</p>
-                                    <div class="v-card-meta">
-                                        <span class="v-meta-item">
-                                            <i class="bi bi-people-fill"></i> @villa.Occupancy Guests
-                                        </span>
-                                        <span class="v-meta-item">
-                                            <i class="bi bi-aspect-ratio"></i> @villa.Sqft sqft
-                                        </span>
-                                    </div>
-                                    @if (User.Identity?.IsAuthenticated == true)
-                                    {
-                                        <a href="mailto:beshoygamall12@gmail.com"
-                                           class="btn btn-contact-villa"
-                                           onclick="event.stopPropagation();">
-
-                                            <i class="bi bi-envelope me-2"></i>Contact Us
-
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <a asp-controller="Auth"
-                                           asp-action="Login"
-                                           class="btn btn-contact-villa"
-                                           onclick="event.stopPropagation();">
-
-                                            <i class="bi bi-envelope me-2"></i>Contact Us
-
-                                        </a>
-                                    }
-                                </div>
-                            </article>
-
-                        </a>
-
-                    </div>
-                }
-            </div>
-
-            <!-- Stats Strip -->
-            <div class="stats-strip">
-                <div class="row g-4 align-items-stretch">
-                    <div class="col-6 col-lg-3">
-                        <div class="s-stat">
-                            <div class="s-stat-icon s-stat-icon--blue">
-                                <i class="bi bi-building"></i>
-                            </div>
-                            <div class="s-stat-body">
-                                <span class="s-stat-num">@Model.Count()</span>
-                                <span class="s-stat-label">Total Villas</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="s-stat">
-                            <div class="s-stat-icon s-stat-icon--green">
-                                <i class="bi bi-cash-stack"></i>
-                            </div>
-                            <div class="s-stat-body">
-                                <span class="s-stat-num">$@Model.Min(v => v.Rate).ToString("N0")</span>
-                                <span class="s-stat-label">Starting From</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="s-stat">
-                            <div class="s-stat-icon s-stat-icon--violet">
-                                <i class="bi bi-people-fill"></i>
-                            </div>
-                            <div class="s-stat-body">
-                                <span class="s-stat-num">@Model.Max(v => v.Occupancy)</span>
-                                <span class="s-stat-label">Max Guests</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="s-stat">
-                            <div class="s-stat-icon s-stat-icon--amber">
-                                <i class="bi bi-arrows-fullscreen"></i>
-                            </div>
-                            <div class="s-stat-body">
-                                <span class="s-stat-num">@Model.Sum(v => v.Sqft).ToString("N0")</span>
-                                <span class="s-stat-label">Total Sqft</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
     </div>
 </section>
 
+@section Scripts {
+    <style>
+        .ajax-loading-overlay {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 4rem 1rem;
+            color: var(--text-secondary, #6c757d);
+        }
+        .ajax-loading-overlay .spinner-border {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-width: 3px;
+            color: var(--hero-start, #6366f1);
+        }
+    </style>
+    <script>
+        $(function () {
+            var $form = $('#filterForm');
+            var $container = $('#villasContainer');
+            var ajaxUrl = '@Url.Action("GetVillasAjax", "Home")';
+
+            // ---------- helpers ----------
+            function showLoading() {
+                $container.html(
+                    '<div class="ajax-loading-overlay">' +
+                        '<div class="spinner-border" role="status"><span class="visually-hidden">Loading…</span></div>' +
+                        '<span>Loading villas…</span>' +
+                    '</div>'
+                );
+            }
+
+            function loadVillas(page) {
+                $('#hiddenPage').val(page || 1);
+                var queryString = $form.serialize();
+                showLoading();
+
+                $.get(ajaxUrl + '?' + queryString)
+                    .done(function (html) {
+                        $container.html(html);
+                    })
+                    .fail(function () {
+                        $container.html(
+                            '<div class="text-center text-danger py-5">' +
+                                '<i class="bi bi-exclamation-triangle fs-1 d-block mb-2"></i>' +
+                                'Failed to load villas. Please try again.' +
+                            '</div>'
+                        );
+                    });
+            }
+
+            // ---------- form submit ----------
+            $form.on('submit', function (e) {
+                e.preventDefault();
+                loadVillas(1);
+            });
+
+            // ---------- sort / pageSize change ----------
+            $('#qcSortBy, #qcSortOrder, #qcPageSize').on('change', function () {
+                loadVillas(1);
+            });
+
+            // ---------- pagination ----------
+            $container.on('click', '.ajax-page-link', function (e) {
+                e.preventDefault();
+                var $li = $(this).closest('li');
+                if ($li.hasClass('disabled') || $li.hasClass('active')) return;
+                var page = $(this).data('page');
+                if (page) loadVillas(page);
+            });
+
+            // ---------- clear filters ----------
+            $('#clearFiltersBtn').on('click', function (e) {
+                e.preventDefault();
+                $form[0].reset();
+                $form.find('select[name="PageSize"]').val('6');
+                loadVillas(1);
+            });
+
+            // ---------- "Clear Filters" inside empty-state partial ----------
+            $container.on('click', '.ajax-clear-filters', function (e) {
+                e.preventDefault();
+                $form[0].reset();
+                $form.find('select[name="PageSize"]').val('6');
+                loadVillas(1);
+            });
+        });
+    </script>
+}

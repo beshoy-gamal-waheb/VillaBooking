@@ -1,4 +1,4 @@
-﻿using VillaBooking.DTO.Villa;
+using VillaBooking.DTO.Villa;
 using VillaBooking.Web.Models;
 using VillaBooking.Web.Services.IServices;
 
@@ -15,6 +15,15 @@ namespace VillaBooking.Web.Services
             {
                 ApiType = SD.ApiType.GET,
                 URL = ApiEndpoint
+            });
+        }
+
+        public Task<T?> GetAllAsync<T>(VillaQueryParameters parameters)
+        {
+            return SendAsync<T>(new ApiRequest()
+            {
+                ApiType = SD.ApiType.GET,
+                URL = $"{ApiEndpoint}{parameters.ToQueryString()}"
             });
         }
 

@@ -1,0 +1,222 @@
+@model VillaBooking.Web.Models.VillaListViewModel
+
+@if (Model.Villas == null || !Model.Villas.Any())
+{
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="empty-state-card text-center">
+                <div class="empty-icon-wrap">
+                    <i class="bi bi-house-slash"></i>
+                </div>
+                <h4 class="mt-4 mb-2">No Villas Found</h4>
+                <p class="text-muted mb-4">No villas match your current filters. Try adjusting your search criteria or create a new villa.</p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="#" class="btn qc-btn-reset px-3 ajax-clear-filters">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Clear Filters
+                    </a>
+                    <a asp-controller="Villa" asp-action="Create" class="btn btn-hero">
+                        <i class="bi bi-plus-lg me-2"></i>Create Villa
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Villa Table -->
+    <div class="villa-table-card">
+        <div class="table-responsive">
+            <table class="table villa-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Details</th>
+                        <th>Rate</th>
+                        <th>Occupancy</th>
+                        <th>Sqft</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var villa in Model.Villas)
+                    {
+                        <tr>
+                            <td class="align-middle">
+                                @if(!string.IsNullOrEmpty(villa.ImageUrl))
+                                {
+                                    <img src="@villa.ImageUrl" class="villa-table-thumb" alt="@villa.Name">
+                                }
+                                else
+                                {
+                                    <div class="villa-table-thumb-empty">
+                                        <i class="bi bi-image"></i>
+                                    </div>
+                                }
+
+                            </td>
+                            <td class="align-middle">
+                                <span class="villa-table-name">@villa.Name</span>
+                            </td>
+                            <td class="align-middle">
+                                <small class="text-muted">
+                                    @if (!string.IsNullOrEmpty(villa.Details))
+                                    {
+                                        @(villa.Details.Length > 50 ? villa.Details.Substring(0, 50) + "..." : villa.Details)
+                                    }
+                                    else
+                                    {
+                                        <span class="fst-italic">No details</span>
+                                    }
+                                </small>
+                            </td>
+                            <td class="align-middle">
+                                <span class="villa-table-rate">$@villa.Rate.ToString("N0")</span>
+                            </td>
+                            <td class="align-middle">
+                                <span class="v-meta-item">
+                                    <i class="bi bi-people-fill"></i> @villa.Occupancy
+                                </span>
+                            </td>
+                            <td class="align-middle">
+                                <span class="v-meta-item">
+                                    <i class="bi bi-aspect-ratio"></i> @villa.Sqft.ToString("N0")
+                                </span>
+                            </td>
+                            <td class="align-middle text-center">
+                                <div class="villa-table-actions">
+                                    <a asp-action="Edit" asp-route-id="@villa.Id"
+                                       class="villa-action-btn villa-action-btn--edit" title="Edit">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@villa.Id"
+                                       class="villa-action-btn villa-action-btn--delete" title="Delete">
+                                        <i class="bi bi-trash3"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label="Villa pagination" class="qc-pagination-wrap">
+            <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
+                <span class="qc-page-info">
+                    Showing page <strong>@Model.CurrentPage</strong> of <strong>@Model.TotalPages</strong>
+                    <span class="text-muted">(@Model.TotalCount total)</span>
+                </span>
+                <ul class="pagination qc-pagination mb-0">
+                    <!-- Previous -->
+                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link ajax-page-link" href="#" data-page="@(Model.CurrentPage - 1)">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    @{
+                        int startPage = Math.Max(1, Model.CurrentPage - 2);
+                        int endPage = Math.Min(Model.TotalPages, startPage + 4);
+                        if (endPage - startPage < 4)
+                        {
+                            startPage = Math.Max(1, endPage - 4);
+                        }
+                    }
+
+                    @if (startPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link ajax-page-link" href="#" data-page="1">1</a>
+                        </li>
+                        @if (startPage > 2)
+                        {
+                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                        }
+                    }
+
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link ajax-page-link" href="#" data-page="@i">@i</a>
+                        </li>
+                    }
+
+                    @if (endPage < Model.TotalPages)
+                    {
+                        @if (endPage < Model.TotalPages - 1)
+                        {
+                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                        }
+                        <li class="page-item">
+                            <a class="page-link ajax-page-link" href="#" data-page="@Model.TotalPages">@Model.TotalPages</a>
+                        </li>
+                    }
+
+                    <!-- Next -->
+                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                        <a class="page-link ajax-page-link" href="#" data-page="@(Model.CurrentPage + 1)">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    }
+
+    <!-- Summary -->
+    <div class="stats-strip">
+        <div class="row g-4 align-items-stretch">
+            <div class="col-6 col-lg-3">
+                <div class="s-stat">
+                    <div class="s-stat-icon s-stat-icon--blue">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div class="s-stat-body">
+                        <span class="s-stat-num">@Model.TotalCount</span>
+                        <span class="s-stat-label">Total Villas</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="s-stat">
+                    <div class="s-stat-icon s-stat-icon--green">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <div class="s-stat-body">
+                        <span class="s-stat-num">$@(Model.Villas.Any() ? Model.Villas.Min(v => v.Rate).ToString("N0") : "0")</span>
+                        <span class="s-stat-label">Starting From</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="s-stat">
+                    <div class="s-stat-icon s-stat-icon--violet">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div class="s-stat-body">
+                        <span class="s-stat-num">@(Model.Villas.Any() ? Model.Villas.Max(v => v.Occupancy) : 0)</span>
+                        <span class="s-stat-label">Max Guests</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="s-stat">
+                    <div class="s-stat-icon s-stat-icon--amber">
+                        <i class="bi bi-arrows-fullscreen"></i>
+                    </div>
+                    <div class="s-stat-body">
+                        <span class="s-stat-num">@(Model.Villas.Any() ? Model.Villas.Sum(v => v.Sqft).ToString("N0") : "0")</span>
+                        <span class="s-stat-label">Total Sqft</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

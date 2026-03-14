@@ -1,8 +1,10 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.RegularExpressions;
 using VillaBooking.DTO.Responses;
 using VillaBooking.DTO.Villa;
+using VillaBooking.Web.Models;
 using VillaBooking.Web.Services.IServices;
 
 namespace VillaBooking.Web.Controllers
@@ -14,15 +16,17 @@ namespace VillaBooking.Web.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(VillaQueryParameters query)
         {
-            List<VillaDTO> villaDTOs = new();
+            var viewModel = new VillaListViewModel { Query = query };
+
             try
             {
-                var response = await _villaService.GetAllAsync<APIResponse<List<VillaDTO>>>();
+                var response = await _villaService.GetAllAsync<APIResponse<List<VillaDTO>>>(query);
                 if (response != null && response.Success && response.Data != null)
                 {
-                    villaDTOs = response.Data;
+                    viewModel.Villas = response.Data;
+                    ParsePaginationMetadata(response.Message, viewModel);
                 }
             }
             catch (Exception ex)
@@ -30,7 +34,27 @@ namespace VillaBooking.Web.Controllers
                 TempData["Error"] = $"An error occurred while retrieving villa data: {ex.Message}";
             }
 
-            return View(villaDTOs);
+            return View(viewModel);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> GetVillasAjax(VillaQueryParameters query)
+        {
+            var viewModel = new VillaListViewModel { Query = query };
+
+            try
+            {
+                var response = await _villaService.GetAllAsync<APIResponse<List<VillaDTO>>>(query);
+                if (response != null && response.Success && response.Data != null)
+                {
+                    viewModel.Villas = response.Data;
+                    ParsePaginationMetadata(response.Message, viewModel);
+                }
+            }
+            catch { }
+
+            return PartialView("_VillasGrid", viewModel);
         }
         #endregion
 
@@ -235,5 +259,18 @@ namespace VillaBooking.Web.Controllers
             return View(upsertDTO);
         }
         #endregion
+
+        private static void ParsePaginationMetadata(string? message, VillaListViewModel viewModel)
+        {
+            if (string.IsNullOrEmpty(message)) return;
+
+            var match = Regex.Match(message, @"Page (\d+) of (\d+), (\d+) total records");
+            if (match.Success)
+            {
+                viewModel.CurrentPage = int.Parse(match.Groups[1].Value);
+                viewModel.TotalPages = int.Parse(match.Groups[2].Value);
+                viewModel.TotalCount = int.Parse(match.Groups[3].Value);
+            }
+        }
     }
 }

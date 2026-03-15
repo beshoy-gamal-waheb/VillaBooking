@@ -45,6 +45,11 @@ namespace VillaBooking.API.Controllers
                 return CreatedAtAction(nameof(Register), response);
 
             }
+            catch (InvalidOperationException ex)
+            {
+                var errorResponse = APIResponse<object>.BadRequest(ex.Message);
+                return StatusCode(StatusCodes.Status400BadRequest, errorResponse);
+            }
             catch (Exception ex)
             {
                 var errorResponse = APIResponse<object>.Error(StatusCodes.Status500InternalServerError,

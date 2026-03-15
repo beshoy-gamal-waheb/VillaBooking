@@ -7,7 +7,8 @@ namespace VillaBooking.DTO.Auth
 
         [Required]
         [MaxLength(100)]
-        public required string Name { get; set; }
+        [Display(Name = "Full Name")]
+        public required string FullName { get; set; }
 
         [Required]
         [EmailAddress]

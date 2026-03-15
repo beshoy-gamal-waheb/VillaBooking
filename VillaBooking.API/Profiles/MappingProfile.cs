@@ -13,7 +13,7 @@ namespace VillaBooking.API.Profiles
         {
             CreateMap<VillaUpsertDTO, Villa>();
             CreateMap<Villa, VillaDTO>();
-            CreateMap<User, UserDTO>();
+            CreateMap<ApplicationUser, UserDTO>();
             CreateMap<VillaAmenityCreateDTO, VillaAmenity>();
             CreateMap<VillaAmenityUpdateDTO, VillaAmenity>();
             CreateMap<VillaAmenity, VillaAmenityDTO>()

@@ -80,6 +80,9 @@
                                         <i class="bi bi-lock"></i>
                                     </span>
                                     <input asp-for="Password" class="form-control auth-input" placeholder="Enter your password" type="password" />
+                                    <button type="button" class="auth-toggle-password" aria-label="Toggle password visibility">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
                                 </div>
                                 <span asp-validation-for="Password" class="text-danger small"></span>
                             </div>
@@ -114,4 +117,16 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(function () {
+            $('.auth-toggle-password').on('click', function () {
+                var $input = $(this).siblings('input');
+                var $icon = $(this).find('i');
+                var isPassword = $input.attr('type') === 'password';
+                $input.attr('type', isPassword ? 'text' : 'password');
+                $icon.toggleClass('bi-eye bi-eye-slash');
+            });
+        });
+    </script>
 }

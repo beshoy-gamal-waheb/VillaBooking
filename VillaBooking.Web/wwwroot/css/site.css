@@ -881,6 +881,30 @@ body {
     color: var(--color-accent);
 }
 
+.auth-toggle-password {
+    position: absolute;
+    right: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    background: none;
+    border: none;
+    padding: 0;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.auth-toggle-password:hover {
+    color: var(--color-accent);
+}
+
+.auth-input-wrap .auth-input[type="password"],
+.auth-input-wrap .auth-input[type="text"] {
+    padding-right: 2.5rem !important;
+}
+
 .auth-divider {
     display: flex;
     align-items: center;

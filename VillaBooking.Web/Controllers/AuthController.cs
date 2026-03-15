@@ -90,7 +90,7 @@ namespace VillaBooking.Web.Controllers
             return View(new RegisterationRequestDTO
             {
                 Email = string.Empty,
-                Name = string.Empty,
+                FullName = string.Empty,
                 Password = string.Empty,
                 Role = "Customer"
             });

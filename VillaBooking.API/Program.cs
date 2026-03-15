@@ -27,6 +27,9 @@ namespace VillaBooking.API
 
             builder.Services.AddControllers();
 
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+
             var key = Encoding.ASCII.GetBytes(builder.Configuration.GetSection("JwtSettings")["Secret"]);
 
             builder.Services.AddAuthentication(options =>
@@ -90,7 +93,6 @@ namespace VillaBooking.API
             builder.Services.AddCors();
 
             builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
             builder.Services.AddApiVersioning(options =>
             {

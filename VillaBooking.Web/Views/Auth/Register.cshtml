@@ -57,18 +57,18 @@
                                  class="alert alert-danger border-0 shadow-sm rounded-3 mb-4">
                             </div>
 
-                            <!-- Name Field -->
+                            <!-- Full Name Field -->
                             <div class="mb-4">
-                                <label asp-for="Name" class="form-label fw-semibold">
+                                <label asp-for="FullName" class="form-label fw-semibold">
                                     Full Name
                                 </label>
                                 <div class="auth-input-wrap">
                                     <span class="auth-input-icon">
                                         <i class="bi bi-person"></i>
                                     </span>
-                                    <input asp-for="Name" class="form-control auth-input" placeholder="Enter your full name" />
+                                    <input asp-for="FullName" class="form-control auth-input" placeholder="Enter your full name" />
                                 </div>
-                                <span asp-validation-for="Name" class="text-danger small"></span>
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
                             </div>
 
                             <!-- Email Field -->
@@ -95,8 +95,35 @@
                                         <i class="bi bi-lock"></i>
                                     </span>
                                     <input asp-for="Password" class="form-control auth-input" placeholder="Create a password" type="password" />
+                                    <button type="button" class="auth-toggle-password" aria-label="Toggle password visibility">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
                                 </div>
-                                <span asp-validation-for="Password" class="text-danger small"></span>
+                                <span asp-validation-for="Password" class="text-danger small" style="display:none;"></span>
+
+                                <!-- Password Requirements Checklist -->
+                                <ul id="password-rules" class="list-unstyled mt-2 mb-0 small" style="display:none;">
+                                    <li id="rule-length" class="d-flex align-items-center gap-2 py-1 text-muted">
+                                        <i class="bi bi-x-circle-fill"></i>
+                                        <span>At least 6 characters</span>
+                                    </li>
+                                    <li id="rule-uppercase" class="d-flex align-items-center gap-2 py-1 text-muted">
+                                        <i class="bi bi-x-circle-fill"></i>
+                                        <span>At least one uppercase letter</span>
+                                    </li>
+                                    <li id="rule-lowercase" class="d-flex align-items-center gap-2 py-1 text-muted">
+                                        <i class="bi bi-x-circle-fill"></i>
+                                        <span>At least one lowercase letter</span>
+                                    </li>
+                                    <li id="rule-digit" class="d-flex align-items-center gap-2 py-1 text-muted">
+                                        <i class="bi bi-x-circle-fill"></i>
+                                        <span>At least one digit</span>
+                                    </li>
+                                    <li id="rule-special" class="d-flex align-items-center gap-2 py-1 text-muted">
+                                        <i class="bi bi-x-circle-fill"></i>
+                                        <span>At least one special character</span>
+                                    </li>
+                                </ul>
                             </div>
 
                             <!-- Role Field -->
@@ -146,4 +173,83 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+                $(function () {
+
+            var $form = $('form');
+            var $password = $('#Password');
+            var $rulesList = $('#password-rules');
+
+            // show validation on blur
+            $form.find('input').on('blur', function () {
+                $(this).valid();
+            });
+
+            var rules = [
+                { id: '#rule-length',    test: v => v.length >= 6 },
+                { id: '#rule-uppercase', test: v => /[A-Z]/.test(v) },
+                { id: '#rule-lowercase', test: v => /[a-z]/.test(v) },
+                { id: '#rule-digit',     test: v => /\d/.test(v) },
+                { id: '#rule-special',   test: v => /[\W_]/.test(v) }
+            ];
+
+            $form.on('submit', function (e) {
+
+                if (!$form.valid()) {
+                    return;
+                }
+
+                var value = $password.val();
+                var allPassed = rules.every(rule => rule.test(value));
+
+                if (!allPassed) {
+                    e.preventDefault();
+                    $rulesList.slideDown(200);
+
+                    rules.forEach(rule => {
+                        var $li = $(rule.id);
+                        if (!rule.test(value)) {
+                            $li.removeClass('text-muted text-success').addClass('text-danger');
+                        }
+                    });
+                }
+            });
+
+            $password.on('input focus', function () {
+
+                var value = $password.val();
+
+                if (value.length > 0) {
+                    $rulesList.slideDown(200);
+                } else {
+                    $rulesList.slideUp(200);
+                }
+
+                rules.forEach(rule => {
+                    var $li = $(rule.id);
+                    var $icon = $li.find('i');
+
+                    if (rule.test(value)) {
+                        $li.removeClass('text-muted text-danger').addClass('text-success');
+                        $icon.removeClass('bi-x-circle-fill').addClass('bi-check-circle-fill');
+                    } else {
+                        $li.removeClass('text-success').addClass('text-muted');
+                        $icon.removeClass('bi-check-circle-fill').addClass('bi-x-circle-fill');
+                    }
+                });
+            });
+
+            $('.auth-toggle-password').on('click', function () {
+                var $input = $(this).siblings('input');
+                var $icon = $(this).find('i');
+
+                var isPassword = $input.attr('type') === 'password';
+                $input.attr('type', isPassword ? 'text' : 'password');
+
+                $icon.toggleClass('bi-eye bi-eye-slash');
+            });
+
+        });
+    </script>
 }

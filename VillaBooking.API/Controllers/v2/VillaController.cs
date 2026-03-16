@@ -6,17 +6,18 @@ using Microsoft.EntityFrameworkCore;
 using System.Text;
 using VillaBooking.API.Data.Contexts;
 using VillaBooking.API.Models;
+using VillaBooking.API.Services.Image;
 using VillaBooking.DTO.Responses;
 using VillaBooking.DTO.Villa;
 
 namespace VillaBooking.API.Controllers.v2
 {
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     [Route("api/v{version:ApiVersion}/villa")]
     [ApiVersion("2.0")]
     [ApiController]
-    public class VillaController(ApplicationDbContext _dbContext,
-                                 IMapper _mapper) : ControllerBase
+    public class VillaController(ApplicationDbContext _dbContext, IMapper _mapper,
+                                     IImageService _imageService) : ControllerBase
     {
         [AllowAnonymous]
         [HttpGet]
@@ -178,10 +179,203 @@ namespace VillaBooking.API.Controllers.v2
             }
         }
 
+
+        [AllowAnonymous]
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<String>> GetVillaById(int id)
+        [ProducesResponseType(typeof(APIResponse<VillaDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse<VillaDTO>>> GetVillaById(int id)
         {
-            return $"This is V2 - {id}";
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest(APIResponse<object>.BadRequest("Villa ID must be greater than 0"));
+                }
+
+                var villa = await _dbContext.Villas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+                if (villa is null)
+                {
+                    return NotFound(APIResponse<object>.NotFound($"Villa with ID {id} was not found"));
+                }
+
+                var villaDTO = _mapper.Map<VillaDTO>(villa);
+
+                return Ok(APIResponse<VillaDTO>.Ok(villaDTO, "Records retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = APIResponse<object>.Error(StatusCodes.Status500InternalServerError,
+                    $"An error occurred while retrieving villa with ID {id}",
+                    ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+        }
+
+
+        [HttpPost]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(typeof(APIResponse<VillaDTO>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse<VillaDTO>>> CreateVilla([FromForm]VillaUpsertDTO villaDTO)
+        {
+            try
+            {
+                if (villaDTO.Image != null && !_imageService.ValidateImage(villaDTO.Image))
+                {
+                    return BadRequest(APIResponse<object>.BadRequest("Invalid image file. Please upload a valid image (jpg, jpeg, png) that is less than 5 MB."));
+                }
+
+                var duplicateVilla = await _dbContext.Villas.AnyAsync(v => v.Name.ToLower() == villaDTO.Name.ToLower());
+                if (duplicateVilla)
+                {
+                    return Conflict(APIResponse<object>.Conflict($"A Villa with the name '{villaDTO.Name}' already exists"));
+                }
+
+                Villa villa = _mapper.Map<VillaUpsertDTO, Villa>(villaDTO);
+
+                if (villaDTO.Image != null)
+                {
+                    villa.ImageUrl = await _imageService.UploadImageAsync(villaDTO.Image);
+                }
+
+                await _dbContext.Villas.AddAsync(villa);
+                await _dbContext.SaveChangesAsync();
+
+                var dtoResponseVilla = _mapper.Map<VillaDTO>(villa);
+                var response = APIResponse<VillaDTO>.CreatedAt(dtoResponseVilla, "Villa created successfully");
+
+                return CreatedAtAction(nameof(GetVillaById), new { id = villa.Id }, response);
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = APIResponse<object>.Error(StatusCodes.Status500InternalServerError,
+                                                                "An error occurred while creating the villa",
+                                                                ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+        }
+
+
+        [HttpPut("{id:int}")]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(typeof(APIResponse<VillaDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse<VillaDTO>>> UpdateVilla(int id, [FromForm]VillaUpsertDTO villaDTO)
+        {
+            string? newImageUrl = null;
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest(APIResponse<object>.BadRequest("Villa ID must be greater than 0"));
+                }
+
+                if (villaDTO.Image != null && !_imageService.ValidateImage(villaDTO.Image))
+                {
+                    return BadRequest(APIResponse<object>.BadRequest("Invalid image file. Please upload a valid image (jpg, jpeg, png) that is less than 5 MB."));
+                }
+
+                var existingVilla = await _dbContext.Villas.FirstOrDefaultAsync(x => x.Id == id);
+                if (existingVilla is null)
+                {
+                    return NotFound(APIResponse<object>.NotFound($"Villa with ID {id} was not found"));
+                }
+
+                var duplicateVilla = await _dbContext.Villas.AnyAsync(v => v.Name.ToLower() == villaDTO.Name.ToLower()
+                            && v.Id != id);
+
+                if (duplicateVilla)
+                {
+                    return Conflict(APIResponse<object>.Conflict($"A Villa with the name '{villaDTO.Name}' already exists"));
+                }
+
+                var oldImageUrl = existingVilla.ImageUrl;
+
+                if (villaDTO.Image != null)
+                {
+                    newImageUrl = await _imageService.UploadImageAsync(villaDTO.Image);
+                    existingVilla.ImageUrl = newImageUrl;
+                }
+
+                _mapper.Map(villaDTO, existingVilla);
+                existingVilla.UpdatedDate = DateTime.Now;
+
+                await _dbContext.SaveChangesAsync();
+
+                if (!string.IsNullOrEmpty(newImageUrl) && !string.IsNullOrEmpty(oldImageUrl))
+                {
+                    await _imageService.DeleteImageAsync(oldImageUrl);
+                }
+
+                var dtoResponseVilla = _mapper.Map<VillaDTO>(existingVilla);
+
+                return Ok(APIResponse<VillaDTO>.Ok(dtoResponseVilla, "Villa updated successfully"));
+
+            }
+            catch (Exception ex)
+            {
+                if (!string.IsNullOrEmpty(newImageUrl))
+                {
+                    await _imageService.DeleteImageAsync(newImageUrl);
+                }
+
+                var errorResponse = APIResponse<object>.Error(StatusCodes.Status500InternalServerError,
+                                                                "An error occurred while updating the villa",
+                                                                ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+        }
+
+
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse<object>>> DeleteVilla(int id)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest(APIResponse<object>.BadRequest("Villa ID must be greater than 0"));
+                }
+
+                var existingVilla = await _dbContext.Villas.FirstOrDefaultAsync(v => v.Id == id);
+                if (existingVilla is null)
+                {
+                    return NotFound(APIResponse<object>.NotFound($"Villa with ID {id} was not found"));
+                }
+
+                _dbContext.Villas.Remove(existingVilla);
+                await _dbContext.SaveChangesAsync();
+
+                if (!string.IsNullOrEmpty(existingVilla.ImageUrl))
+                {
+                    await _imageService.DeleteImageAsync(existingVilla.ImageUrl);
+                }
+
+                return Ok(APIResponse<object>.NoContent("Villa deleted successfully"));
+
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = APIResponse<object>.Error(StatusCodes.Status500InternalServerError,
+                                                              "An error occurred while deleting the villa",
+                                                              ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
         }
     }
 }

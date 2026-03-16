@@ -14,6 +14,7 @@ using VillaBooking.API.Profiles;
 using VillaBooking.API.Services.Auth;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
+using VillaBooking.API.Services.Image;
 namespace VillaBooking.API
 {
     public class Program
@@ -93,6 +94,7 @@ namespace VillaBooking.API
             builder.Services.AddCors();
 
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IImageService, ImageService>();
 
             builder.Services.AddApiVersioning(options =>
             {

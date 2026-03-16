@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace VillaBooking.DTO.Villa
 {
@@ -23,7 +24,6 @@ namespace VillaBooking.DTO.Villa
         [Range(1, 50, ErrorMessage = "Occupancy must be between 1 and 50")]
         public int Occupancy { get; set; }
 
-        [Url(ErrorMessage = "Please enter a valid image URL")]
-        public string? ImageUrl { get; set; }
+        public IFormFile? Image { get; set; }
     }
 }

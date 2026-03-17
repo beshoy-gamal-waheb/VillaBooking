@@ -194,6 +194,7 @@ namespace VillaBooking.API
                 });
             }
 
+            app.UseStaticFiles();
             app.UseCors(option => option.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().WithExposedHeaders("*"));
 
             app.UseHttpsRedirection();

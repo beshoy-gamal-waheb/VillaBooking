@@ -27,16 +27,7 @@
 
                     <!-- Villa Image -->
                     <div class="v-card-media" style="height: 380px;">
-                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                        {
-                            <img src="@Model.ImageUrl" class="v-card-img" alt="@Model.Name">
-                        }
-                        else
-                        {
-                            <div class="v-card-img-empty">
-                                <i class="bi bi-image"></i>
-                            </div>
-                        }
+                        <img src="@SD.GetImageUrl(Model.ImageUrl)" class="v-card-img" alt="@Model.Name">
                         <div class="v-card-price">
                             $@Model.Rate.ToString("N0")<span class="v-card-price-unit">/night</span>
                         </div>

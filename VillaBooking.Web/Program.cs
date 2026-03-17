@@ -24,9 +24,10 @@ namespace VillaBooking.Web
                 option.Cookie.IsEssential = true;
             });
 
+            SD.APIBaseUrl = builder.Configuration["ServiceUrls:VillaAPI"];
             builder.Services.AddHttpClient("VillaBookingAPI", options =>
             {
-                var villaAPIUrl = builder.Configuration["ServiceUrls:VillaAPI"];
+                var villaAPIUrl = SD.APIBaseUrl;
                 options.BaseAddress = new Uri(villaAPIUrl);
                 options.DefaultRequestHeaders.Add("Accept", "application/json");
             });

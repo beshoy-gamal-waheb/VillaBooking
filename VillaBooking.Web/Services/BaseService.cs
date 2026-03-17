@@ -44,7 +44,14 @@ namespace VillaBooking.Web.Services
 
                 if (apiRequest.Data is not null)
                 {
-                    message.Content = JsonContent.Create(apiRequest.Data, options: jsonOptions);
+                    if (apiRequest.Data is MultipartFormDataContent multipartForm)
+                    {
+                        message.Content = multipartForm;
+                    }
+                    else
+                    {
+                        message.Content = JsonContent.Create(apiRequest.Data, options: jsonOptions);
+                    }
                 }
                     
                 var apiResponse = await client.SendAsync(message);

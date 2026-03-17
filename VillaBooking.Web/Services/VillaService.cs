@@ -1,4 +1,5 @@
 using VillaBooking.DTO.Villa;
+using VillaBooking.Web.Extensions;
 using VillaBooking.Web.Models;
 using VillaBooking.Web.Services.IServices;
 
@@ -38,21 +39,23 @@ namespace VillaBooking.Web.Services
 
         public Task<T?> CreateAsync<T>(VillaUpsertDTO dto)
         {
+            var formData = dto.ToMultipartFormData();
             return SendAsync<T>(new ApiRequest()
             {
                 ApiType = SD.ApiType.POST,
                 URL = ApiEndpoint,
-                Data = dto
+                Data = formData
             });
         }
 
         public Task<T?> UpdateAsync<T>(int id, VillaUpsertDTO dto)
         {
+            var formData = dto.ToMultipartFormData();
             return SendAsync<T>(new ApiRequest()
             {
                 ApiType = SD.ApiType.PUT,
                 URL = $"{ApiEndpoint}/{id}",
-                Data = dto
+                Data = formData
             });
         }
 

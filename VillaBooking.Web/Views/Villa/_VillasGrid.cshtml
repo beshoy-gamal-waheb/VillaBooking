@@ -46,7 +46,7 @@ else
                             <td class="align-middle">
                                 @if(!string.IsNullOrEmpty(villa.ImageUrl))
                                 {
-                                    <img src="@villa.ImageUrl" class="villa-table-thumb" alt="@villa.Name">
+                                    <img src="@SD.GetImageUrl(villa.ImageUrl)" class="villa-table-thumb" alt="@villa.Name">
                                 }
                                 else
                                 {

@@ -207,6 +207,7 @@ namespace VillaBooking.Web.Controllers
                 var response = await _villaService.GetAsync<APIResponse<VillaDTO>>(id);
                 if (response != null && response.Success && response.Data != null)
                 {
+                    ViewBag.ImageUrl = response.Data.ImageUrl;
                     return View(_mapper.Map<VillaUpsertDTO>(response.Data));
                 }
 

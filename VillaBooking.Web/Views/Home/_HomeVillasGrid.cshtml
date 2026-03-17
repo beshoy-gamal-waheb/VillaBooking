@@ -32,16 +32,7 @@ else
 
                     <article class="v-card h-100">
                         <div class="v-card-media">
-                            @if (!String.IsNullOrEmpty(villa.ImageUrl))
-                            {
-                                <img src="@villa.ImageUrl" class="v-card-img" alt="@villa.Name" loading="lazy">
-                            }
-                            else
-                            {
-                                <div class="v-card-img-empty">
-                                    <i class="bi bi-image"></i>
-                                </div>
-                            }
+                            <img src="@SD.GetImageUrl(villa.ImageUrl)" class="v-card-img" alt="@villa.Name" loading="lazy">
                             <div class="v-card-price">
                                 $@villa.Rate.ToString("N0")<span class="v-card-price-unit">/night</span>
                             </div>

@@ -40,7 +40,7 @@
                         <div class="text-center mb-4">
                             @if (!string.IsNullOrEmpty(Model.ImageUrl))
                             {
-                                <img src="@Model.ImageUrl" alt="@Model.Name"
+                                <img src="@SD.GetImageUrl(Model.ImageUrl)" alt="@Model.Name"
                                      class="rounded-3 shadow-sm"
                                      style="max-height: 240px; width: 100%; object-fit: cover;">
                             }

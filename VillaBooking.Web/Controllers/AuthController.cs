@@ -11,7 +11,7 @@ using VillaBooking.Web.Services.IServices;
 
 namespace VillaBooking.Web.Controllers
 {
-    public class AuthController(IAuthService _authService) : Controller
+    public class AuthController(IAuthService _authService, ITokenProvider _tokenProvider) : Controller
     {
         #region Login
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
@@ -36,7 +36,7 @@ namespace VillaBooking.Web.Controllers
                 
             try
             {
-                var response = await _authService.LoginAsync<APIResponse<LoginResponseDTO>>(model);
+                var response = await _authService.LoginAsync<APIResponse<TokenDTO>>(model);
 
                 if (response == null || !response.Success || response.Data == null)
                 {
@@ -44,7 +44,7 @@ namespace VillaBooking.Web.Controllers
                     return View(model);
                 }
 
-                var token = response.Data.Token;
+                var token = response.Data.AccessToken;
 
                 if (string.IsNullOrWhiteSpace(token))
                 {
@@ -52,19 +52,15 @@ namespace VillaBooking.Web.Controllers
                     return View(model);
                 }
 
-                var handler = new JwtSecurityTokenHandler();
-                var jwt = handler.ReadJwtToken(token);
+                
+                var principal = _tokenProvider.CreatePrincipalFromJwtToken(token);
+                if (principal is not null)
+                {
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+                    _tokenProvider.SetToken(token);
+                }
 
-                var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-                identity.AddClaim(new Claim(ClaimTypes.Name,
-                    jwt.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? string.Empty));
-                identity.AddClaim(new Claim(ClaimTypes.Role,
-                    jwt.Claims.FirstOrDefault(c => c.Type == "role")?.Value ?? string.Empty));
-
-                var principal = new ClaimsPrincipal(identity);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
-                HttpContext.Session.SetString(SD.SessionToken, token);
+                //HttpContext.Session.SetString(SD.SessionToken, token);
 
                 return RedirectToAction("Index", "Home");
             }
@@ -135,7 +131,8 @@ namespace VillaBooking.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            _tokenProvider.ClearToken();
             return RedirectToAction(nameof(Login));
         }
     }

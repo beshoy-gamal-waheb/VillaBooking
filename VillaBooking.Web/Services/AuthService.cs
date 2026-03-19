@@ -4,8 +4,8 @@ using VillaBooking.Web.Services.IServices;
 
 namespace VillaBooking.Web.Services
 {
-    public class AuthService(IHttpClientFactory _httpClient, IHttpContextAccessor _httpContext)
-        : BaseService(_httpClient, _httpContext), IAuthService
+    public class AuthService(IHttpClientFactory _httpClient, ITokenProvider _tokenProvider)
+        : BaseService(_httpClient, _tokenProvider), IAuthService
     {
         private const string APIEndpoint = "/api/auth";
 
@@ -16,7 +16,7 @@ namespace VillaBooking.Web.Services
                 ApiType = SD.ApiType.POST,
                 Data = loginRequestDTO,
                 URL = $"{APIEndpoint}/login"
-            });
+            }, withBearer: false);
         }
 
         public Task<T?> RegisterAsync<T>(RegisterationRequestDTO registerationRequestDTO)
@@ -26,7 +26,7 @@ namespace VillaBooking.Web.Services
                 ApiType = SD.ApiType.POST,
                 Data = registerationRequestDTO,
                 URL = $"{APIEndpoint}/register"
-            });
+            }, withBearer: false);
         }
     }
 }

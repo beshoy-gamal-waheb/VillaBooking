@@ -6,6 +6,6 @@ namespace VillaBooking.Web.Services.IServices
     public interface IBaseService
     {
         APIResponse<object> ResponseModel { get; set; }
-        Task<T> SendAsync<T>(ApiRequest apiRequest);
+        Task<T> SendAsync<T>(ApiRequest apiRequest, bool withBearer = true);
     }
 }

@@ -61,7 +61,7 @@ namespace VillaBooking.API.Services.Auth
             return userDTO;
         }
 
-        public async Task<LoginResponseDTO?> LoginAsync(LoginRequestDTO loginRequestDTO)
+        public async Task<TokenDTO?> LoginAsync(LoginRequestDTO loginRequestDTO)
         {
             var user = await _userManager.FindByEmailAsync(loginRequestDTO.Email);
             if (user is null)
@@ -84,10 +84,9 @@ namespace VillaBooking.API.Services.Auth
             //Generate Token
             var token = await GenerateToken(user);
 
-            return new LoginResponseDTO()
+            return new TokenDTO()
                 {
-                    Token = token,
-                    UserDTO = _mapper.Map<UserDTO>(user)
+                    AccessToken = token,
                 };
         }
 

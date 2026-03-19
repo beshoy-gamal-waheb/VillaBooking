@@ -5,8 +5,8 @@ using VillaBooking.Web.Services.IServices;
 
 namespace VillaBooking.Web.Services
 {
-    public class VillaService(IHttpClientFactory _httpClient, IHttpContextAccessor _httpContext)
-        : BaseService(_httpClient, _httpContext), IVillaService
+    public class VillaService(IHttpClientFactory _httpClient, ITokenProvider _tokenProvider)
+        : BaseService(_httpClient, _tokenProvider), IVillaService
     {
         private const string ApiEndpoint = $"/api/{SD.CurrentApiVersion}/villa";
 

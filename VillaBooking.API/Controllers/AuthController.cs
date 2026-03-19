@@ -65,7 +65,7 @@ namespace VillaBooking.API.Controllers
         [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(APIResponse<object>), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse<LoginResponseDTO>>> Login(LoginRequestDTO loginRequestDTO)
+        public async Task<ActionResult<APIResponse<TokenDTO>>> Login(LoginRequestDTO loginRequestDTO)
         {
             try
             {
@@ -80,7 +80,7 @@ namespace VillaBooking.API.Controllers
                     return BadRequest(APIResponse<object>.BadRequest("Invalid email or password"));
                 }
 
-                var response = APIResponse<LoginResponseDTO>.Ok(loginResponseDTO, "login successfully");
+                var response = APIResponse<TokenDTO>.Ok(loginResponseDTO, "login successfully");
                 return Ok(response);
             }
             catch (AccountLockedException ex)

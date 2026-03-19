@@ -11,12 +11,12 @@ namespace VillaBooking.Web.Services
         public IHttpClientFactory HttpClient { get; set; }
         public APIResponse<object> ResponseModel { get; set; }
 
-        private readonly IHttpContextAccessor httpContext;
-        public BaseService(IHttpClientFactory httpClient, IHttpContextAccessor httpContext)
+        private readonly ITokenProvider _tokenProvider;
+        public BaseService(IHttpClientFactory httpClient, ITokenProvider tokenProvider)
         {
             this.ResponseModel = new();
             this.HttpClient = httpClient;
-            this.httpContext = httpContext;
+            _tokenProvider = tokenProvider;
         }
 
         private static readonly JsonSerializerOptions jsonOptions = new()
@@ -25,7 +25,7 @@ namespace VillaBooking.Web.Services
         };
  
 
-        public async Task<T?> SendAsync<T>(ApiRequest apiRequest)
+        public async Task<T?> SendAsync<T>(ApiRequest apiRequest, bool withBearer = true)
         {
             try
             {
@@ -36,8 +36,8 @@ namespace VillaBooking.Web.Services
                     Method = GetHttpMethod(apiRequest.ApiType)
                 };
 
-                var token = httpContext.HttpContext?.Session.GetString(SD.SessionToken);
-                if (!string.IsNullOrEmpty(token))
+                var token = _tokenProvider.GetToken();
+                if (withBearer && !string.IsNullOrEmpty(token))
                 {
                     message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 }
